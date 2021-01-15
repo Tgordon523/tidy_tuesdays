@@ -1,0 +1,99 @@
+---
+title: "Tidy Tuesday (01-12-2021) - Tate Art Museum"
+author: "Tim Gordon"
+date: "`r Sys.Date()`"
+output: github_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+knitr::opts_chunk$set(cache=TRUE, warning=FALSE,
+                      message=FALSE, echo = TRUE, dpi=180,
+                      fig.width = 9, fig.height = 6)
+library(tidyverse)
+library(skimr)
+library(ggplot2)
+library(tidytuesdayR)
+```
+
+## Part 1: Load in dataset for Tidy Tuesday (01-12-2021). 
+
+```{r data}
+tidytuesdayR::last_tuesday()
+tt_data <- tt_load(last_tuesday())
+tt_artist <- tt_data$artists
+tt_art <- tt_data$artwork
+
+tt_df <- tt_artist %>% left_join(tt_art, by=c("id" = "artistId"))
+
+
+```
+
+### Analysis of variables in dataset. 
+### Explore dataset
+
+
+```{r eda}
+
+tt_df %>% 
+  skim() 
+
+tt_df %>%
+  count(gender) %>% 
+  drop_na() %>%
+  glimpse()
+
+tt_df %>%
+  filter(is.na(gender)) %>%
+  select(name) %>%
+  count(name, sort=TRUE)
+
+tt_artist %>%
+  drop_na(placeOfBirth) %>%
+  mutate(cont1 = str_split(placeOfBirth, ", ", simplify=TRUE)[,1], cont2= str_split(placeOfBirth, ", ", simplify=TRUE)[,2]) %>% 
+  mutate(var = case_when(cont2=="" ~ cont1,
+                      TRUE ~ cont2)) %>%
+                      count(var,sort=TRUE)
+
+tt_df %>% 
+  drop_na(placeOfBirth) %>%
+  mutate(cont1 = str_split(placeOfBirth, ", ", simplify=TRUE)[,1], cont2= str_split(placeOfBirth, ", ", simplify=TRUE)[,2]) %>% 
+  mutate(var = case_when(cont2=="" ~ cont1,
+                      TRUE ~ cont2)) %>%
+                      count(var,sort=TRUE)
+```
+
+
+### Graphs 
+
+
+```{r plots}
+tt_artist %>%
+  filter(!is.na(name) & !is.na(gender) & !is.na(yearOfBirth)) %>% 
+  group_by(gender, decade = 10 * (yearOfBirth %/% 10)) %>%
+  tally() %>% 
+  ungroup() %>%
+  mutate(gender = factor(gender, levels = c('Female','Male'))) %>%
+  ggplot(aes(x=decade, y=n, fill=gender)) +
+    geom_bar(stat="identity", position="dodge", colour="black") +
+    labs(title = 'Tate Artist Distribution across the decades',
+         x="Decades (from 1500 to 2000)",
+         y="Number of Artists in Tate")
+
+tt_df %>%
+  filter(!is.na(artist) & !is.na(gender) & !is.na(yearOfBirth) & artistRole=='artist' & acquisitionYear >= 1900) %>% 
+  group_by(gender, decade = 10 * (acquisitionYear %/% 10)) %>%
+  # mutate(gender = factor(gender, levels = c('Male','Female'))) %>%
+  tally() %>% 
+  ungroup() %>%
+  mutate(gender = factor(gender, levels = c('Female','Male'))) %>%
+  ggplot(aes(x=factor(decade), y=n, fill=gender)) +
+    geom_bar(stat='identity', position="dodge", alpha=.7) +
+    theme(legend.position = "none") +
+    labs(title = "A century of artwork acquired each decade by gender", 
+         x="Decades (after 1900)",
+         y="Number of acquisitions") 
+      #facet_wrap(~ gender)
+```
