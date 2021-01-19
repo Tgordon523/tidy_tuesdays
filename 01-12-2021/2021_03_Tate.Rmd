@@ -16,13 +16,14 @@ library(tidyverse)
 library(skimr)
 library(ggplot2)
 library(tidytuesdayR)
+library(tidytext)
 ```
 
 ## Part 1: Load in dataset for Tidy Tuesday (01-12-2021). 
 
 ```{r data}
 tidytuesdayR::last_tuesday()
-tt_data <- tt_load(last_tuesday())
+tt_data <- tt_load("2021-01-12")
 tt_artist <- tt_data$artists
 tt_art <- tt_data$artwork
 
@@ -36,33 +37,23 @@ tt_df <- tt_artist %>% left_join(tt_art, by=c("id" = "artistId"))
 
 
 ```{r eda}
-
-tt_df %>% 
-  skim() 
-
-tt_df %>%
-  count(gender) %>% 
-  drop_na() %>%
-  glimpse()
-
+### Who are the artists without genders (typically schools)
 tt_df %>%
   filter(is.na(gender)) %>%
   select(name) %>%
   count(name, sort=TRUE)
 
-tt_artist %>%
-  drop_na(placeOfBirth) %>%
-  mutate(cont1 = str_split(placeOfBirth, ", ", simplify=TRUE)[,1], cont2= str_split(placeOfBirth, ", ", simplify=TRUE)[,2]) %>% 
+tt_df <- tt_df %>% 
+  mutate(cont1 = str_split(placeOfBirth, ", ", simplify=TRUE)[,1], 
+         cont2= str_split(placeOfBirth, ", ", simplify=TRUE)[,2]) %>% 
   mutate(var = case_when(cont2=="" ~ cont1,
                       TRUE ~ cont2)) %>%
-                      count(var,sort=TRUE)
+  mutate(country_origin = fct_lump(var, prop= .01)) %>%
+  select(-c(cont1, cont2))
 
-tt_df %>% 
-  drop_na(placeOfBirth) %>%
-  mutate(cont1 = str_split(placeOfBirth, ", ", simplify=TRUE)[,1], cont2= str_split(placeOfBirth, ", ", simplify=TRUE)[,2]) %>% 
-  mutate(var = case_when(cont2=="" ~ cont1,
-                      TRUE ~ cont2)) %>%
-                      count(var,sort=TRUE)
+### What are the top 5 countries artists come from
+summary(tt_df$country_origin)
+
 ```
 
 
@@ -70,6 +61,19 @@ tt_df %>%
 
 
 ```{r plots}
+
+### Does the Museum diversify the art collected as time goes on?
+tt_df %>%
+  filter(!is.na(country_origin) & year > 1850) %>%
+  group_by(country_origin, decade = 10 * (year %/% 10)) %>%
+  count() %>%
+  mutate(country_origin = factor(country_origin, levels=c('Deutschland', 'France', 'United Kingdom', 'United States', 'Other'))) %>%
+  ggplot(aes(x=decade, y=n, fill=country_origin)) +
+    geom_col(position='dodge') +
+    labs(title = "Art collection from different countries over decades", 
+         x = "Decade",
+         y = "Number of artworks")
+
 tt_artist %>%
   filter(!is.na(name) & !is.na(gender) & !is.na(yearOfBirth)) %>% 
   group_by(gender, decade = 10 * (yearOfBirth %/% 10)) %>%
@@ -86,7 +90,7 @@ tt_df %>%
   filter(!is.na(artist) & !is.na(gender) & !is.na(yearOfBirth) & artistRole=='artist' & acquisitionYear >= 1900) %>% 
   group_by(gender, decade = 10 * (acquisitionYear %/% 10)) %>%
   # mutate(gender = factor(gender, levels = c('Male','Female'))) %>%
-  tally() %>% 
+  count() %>% 
   ungroup() %>%
   mutate(gender = factor(gender, levels = c('Female','Male'))) %>%
   ggplot(aes(x=factor(decade), y=n, fill=gender)) +
@@ -97,3 +101,45 @@ tt_df %>%
          y="Number of acquisitions") 
       #facet_wrap(~ gender)
 ```
+
+
+```{r}
+tt_art %>% 
+  filter(str_detect(accession_number, "(N|AR|T|[A-Z])")) %>% 
+  select(accession_number)
+
+tt_art %>% 
+  str_extract(accession_number, "(N|AR|T|[A-Z])") %>% 
+  select(accession_number)
+```
+
+
+```{r}
+tt_art %>%
+  filter(year > 1900 & year < 2900) %>%
+  unnest_tokens(word, title) %>%
+  anti_join(stop_words) %>%
+  count(word, sort=TRUE) %>%
+  na.omit() %>%
+  filter(n > 100) %>%
+  ggplot(aes(x=n, y=reorder(word, n))) +
+  geom_col()
+
+tt_art %>%
+  unnest_tokens(word, medium) %>%
+  anti_join(stop_words) %>%
+  count(word, sort=TRUE) %>%
+  na.omit() %>%
+  filter(n > 500) %>%
+  ggplot(aes(x=n, y=reorder(word, n))) +
+  geom_col()
+```
+
+
+```{r}
+library(tidymodels)
+
+set.seed(123)
+split_art <- initial_split(tt_art)
+```
+
