@@ -17,6 +17,7 @@ library(skimr)
 library(ggplot2)
 library(tidytuesdayR)
 library(tidytext)
+library(dplyr)
 ```
 
 ## Part 1: Load in dataset for Tidy Tuesday (01-12-2021). 
@@ -57,7 +58,8 @@ summary(tt_df$country_origin)
 ```
 
 
-### Graphs 
+### I was interested in plots regarding the gender of the artists present in the museum. 
+### I am also graphed the top 5 countries of origin to visualize any changes over time. 
 
 
 ```{r plots}
@@ -103,27 +105,39 @@ tt_df %>%
 ```
 
 
-```{r}
-tt_art %>% 
-  filter(str_detect(accession_number, "(N|AR|T|[A-Z])")) %>% 
-  select(accession_number)
+### The documentation on the site indicated that the accession number prefix referred to a different area of the museum collection.
 
+```{r areas}
 tt_art %>% 
-  str_extract(accession_number, "(N|AR|T|[A-Z])") %>% 
-  select(accession_number)
+  mutate(suffix = str_extract(accession_number, "(N|AR|T|[A-Z])")) %>% 
+  group_by(suffix) %>%
+  count()
 ```
 
+### I was interested in the difference between words from earlier art works and more modern pieces in the title. 
+### I also was interested in what the more common mediums of art include.
 
 ```{r}
 tt_art %>%
-  filter(year > 1900 & year < 2900) %>%
+  filter(year > 1800 & year < 1900) %>%
   unnest_tokens(word, title) %>%
   anti_join(stop_words) %>%
   count(word, sort=TRUE) %>%
   na.omit() %>%
-  filter(n > 100) %>%
+  filter(n > 200) %>%
   ggplot(aes(x=n, y=reorder(word, n))) +
   geom_col()
+
+tt_art %>%
+  filter(year > 1900) %>%
+  unnest_tokens(word, title) %>%
+  anti_join(stop_words) %>%
+  count(word, sort=TRUE) %>%
+  na.omit() %>%
+  filter(n > 200) %>%
+  ggplot(aes(x=n, y=reorder(word, n))) +
+  geom_col()
+
 
 tt_art %>%
   unnest_tokens(word, medium) %>%
@@ -133,13 +147,5 @@ tt_art %>%
   filter(n > 500) %>%
   ggplot(aes(x=n, y=reorder(word, n))) +
   geom_col()
-```
-
-
-```{r}
-library(tidymodels)
-
-set.seed(123)
-split_art <- initial_split(tt_art)
 ```
 
