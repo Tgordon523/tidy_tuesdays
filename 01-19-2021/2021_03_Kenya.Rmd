@@ -30,11 +30,14 @@ household <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytue
 
 
 ```{r gender}
-gender %>%
+gender_df <- gender %>%
   filter(County != "Total") %>%
   select(!Total) %>%
+  mutate(County = str_to_lower(County)) %>%
   pivot_longer(!County, names_to="gender", values_to="pop") %>%
-  mutate(gender = factor(gender, levels = c("Male","Female", "Intersex"))) %>%
+  mutate(gender = factor(gender, levels = c("Male","Female", "Intersex")))
+
+gender_df %>%
   ggplot(aes(x=pop, y=County, fill=gender)) +
   geom_bar(stat="identity", position="fill", colour="black") +
   scale_x_continuous() + 
@@ -45,8 +48,12 @@ gender %>%
 
 ```
 
+## Crops dataset
+### Data clean and initial look at type of produce across the counties
+
+
 ```{r crops}
-crops %>%
+crops_df <- crops %>%
   pivot_longer(!SubCounty, names_to="Crops", values_to="Count") %>%
   filter(SubCounty != "KENYA") %>%
   mutate(Count = replace_na(Count, 0)) %>%
@@ -55,14 +62,54 @@ crops %>%
     Crops %in% c("Coffee", "Tea", "Khat(Miraa)") ~ "Plant",
     Crops == "Farming" ~ "Farming",
     TRUE ~ "Fruit")) %>%
+  mutate(SubCounty = str_to_lower(SubCounty))
+
+crops_df %>%  
   ggplot(aes(x=SubCounty, y=Count, fill=Crops)) +
-  geom_bar(stat="identity", color="black")+
+  geom_bar(stat="identity", color="black", alpha=.7)+
   scale_y_continuous() +
   facet_grid(Type ~ .) +
   theme_grey() + 
-  theme(axis.text.x = element_text(angle = 90)) +
+  theme(axis.text.x = element_text(angle = 60, hjust =.9)) +
   labs(title="Crop Coverage through Kenyan Counties",
        x="County",
        y="Count")
 ```
+
+### Crops highlighted areas which produce a balance of the different type of crops
+
+```{r crops_balanced}
+crops_df %>%
+  mutate(Type = factor(Type, levels = c('Nut', 'Plant', 'Farming', 'Fruit'))) %>%
+  group_by(SubCounty, Type) %>%
+  summarise(amount = sum(Count)) %>%
+  mutate( area = factor(ifelse(SubCounty %in% c("meru","nyeri","embu", "murang'a"),"Highlighted","Normal"))) %>%
+  ungroup() %>%
+  mutate(SubCounty = str_to_lower(SubCounty)) %>%
+  ggplot(aes(y=SubCounty, x=amount, fill=Type,
+             alpha=area)) +
+  geom_col() +
+  scale_alpha_manual(name = "SubCounty", values=c(0.35, 1.0)) + 
+  theme_gray() + 
+  labs(title="Kenyan Counties type of crop",
+       subtitle = "Highlighted counties with a better balance of all four types",
+      x="Amount Produced by Population",
+      y="County")
+```
+
+## Prepare kenya household
+
+```{r}
+household_df <- household %>% 
+  filter(County != "Kenya") %>%
+  mutate(County = str_to_lower(County)) 
+
+household_df %>%
+  ggplot(aes(y=County, x=Population)) + 
+  geom_col()
+```
+
+###
+###  To be done. Align counties (specifically) in crops and households to measure why a county produces as it does 
+###
 
