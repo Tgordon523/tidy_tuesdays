@@ -153,14 +153,15 @@ pop_crops %>%
 ```{r}
 pop_crops %>% 
   mutate(area = factor(ifelse(County %in% c("meru","nyeri","embu", 'nairobi', "murang'a"),"Highlighted","Normal"))) %>%
-  ggplot(aes(x=Population,y=Total, label=County, fill=area, size=Population)) +
+  ggplot(aes(x=Population,y=Total, label=County, fill=area)) +
   geom_label(colour='white', vjust='inward') + 
   scale_x_continuous(name="Population", labels = scales::comma) +
   scale_y_continuous(name="Total", labels = scales::comma) + 
-  theme_grey() +
+  scale_fill_manual(name="area", values= c("#BB0000", "#006600")) +
+  theme_dark() +
   theme(legend.position = "none") + 
   labs(title='Kenyan Counties Production vs Population',
-       subtitle='Counties of interest highlighted')
+       subtitle='Counties of interest highlighted (diverse crops or lack of crops)')
 ```
 
 ###
