@@ -18,6 +18,8 @@ library(ggplot2)
 library(tidytext)
 library(dplyr)
 library(janitor)
+library(ggpubr)
+theme_set(theme_grey())
 ```
 
 ## Load data for Plastic Pollution
@@ -35,19 +37,17 @@ income_distribution <- readr::read_csv('https://raw.githubusercontent.com/rforda
 income_mean <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-02-09/income_mean.csv')
 ```
 
-```{r}
-income_time <- income_time %>%
-  clean_names()
-```
-
 ### Looking at income changes by Class over the years
 
 ```{r income_class_change}
-income_time %>%
+income_time <- income_time %>%
+  clean_names()
+
+p1 <- income_time %>%
   mutate(percentile = factor(percentile, levels= c('10th','50th', '90th')),
          income_family = round(income_family, 0)) %>%
   filter(year > 1990) %>%
-  ggplot(aes(x=year, y=income_family, label=income_family, color=percentile)) +
+  ggplot(aes(x=year, y=income_family, label=round(income_family, 2), color=percentile)) +
   geom_line(size=2) +
   geom_point(data=subset(income_time, year %in% c(2000, 2006, 2008, 2012, 2016)), color='black', size=3) +
   geom_label(data=subset(income_time, year %in% c(2000, 2006, 2008, 2012, 2016)), position=position_dodge(width=1.2), vjust=-.07, hjust=.3) +
@@ -65,16 +65,30 @@ income_time %>%
 ### 50 percentile barely made even, while the top 90th increased income by nearly 10%.
 
 ```{r income_century_pct_change}
-income_time %>%
+
+p2 <- income_time %>%
   filter(year %in% c(2000, 2016)) %>%
   arrange(percentile) %>%
   mutate(century_cmp = lag(income_family)) %>%
-  mutate(pct_change = ((income_family-century_cmp)/income_family) * 100) %>%
-  filter(year == 2016) 
+  mutate(pct_change = ((income_family-century_cmp)/income_family)) %>%
+  filter(year == 2016) %>%
+  ggplot(aes(percentile, pct_change, label=round(pct_change, digits=2), fill=percentile)) +#filter(year == 2016) 
+  geom_col() + 
+  coord_flip() +
+  scale_y_continuous(labels = scales::percent)  +
+  theme(legend.position = "none") +
+  labs(x= "Income Group",
+       y="Pct Change (%)", 
+       title = "Family Income Pct Change from 2000 to 2016",
+       subtitle = "The lowest 10% of family income lost almost 15% of their income. The top 10% increased their income by 9% over this period.")
+
+ggarrange(p1, p2, labels = c('A', 'B'),
+          common.legend =TRUE, legend="bottom",
+          ncol=1)
 ```
 
 ### Student debt analysis
-#### All races are trending with a higher pct of student loans in later years. 
+###g# All races are trending with a higher pct of student loans in later years. 
 #### Hispanic trend is slow follow. Without context, it is hard to make a inference on why it may be.
 
 ```{r student_debt}
@@ -86,8 +100,9 @@ student_debt %>% skim()
 student_debt %>%
   ggplot(aes(year, loan_debt_pct, color=race)) +
   geom_line(size=1.8) +
-  theme_grey() +
-  scale_y_continuous(labels = scales::percent) 
+  scale_y_continuous(labels = scales::percent) +
+  labs(title= "Student Loan Debt for different race groups",
+       subtitle= 'All grows debt % increase steadily over the years.')
 
 ```
 

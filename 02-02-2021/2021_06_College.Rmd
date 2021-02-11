@@ -1,7 +1,7 @@
 ---
-title: "Tidy Tuesday (01-26-2021) - Plastic Pollution"
+title: "Tidy Tuesday (02-02-2021) - College Enrollment"
 author: "Tim Gordon"
-date: "January 28, 2021"
+date: "February 2, 2021"
 output: github_document
 editor_options: 
   chunk_output_type: console
@@ -17,96 +17,75 @@ library(skimr)
 library(ggplot2)
 library(tidytext)
 library(dplyr)
+library(janitor)
 ```
 
 ## Load data for Plastic Pollution
 
 ```{r}
-plastics <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-01-26/plastics.csv')
+college <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-02-02/hbcu_all.csv')
 ```
-
-### Analysis of plastic by country
 
 ```{r}
-### remove grand total, make titles, and replace GB
-plastics <- plastics %>%
-  filter(parent_company != "Grand Total") %>%
-  mutate(country = str_to_title(country)) %>%
-  mutate(country = str_replace(country, "United Kingdom Of Great Britain & Northern Ireland$", "United Kingdom"))
-
-
-### Update chart for correct order
-plastics %>%
-  filter(country != "Empty") %>% 
-  group_by(country, year) %>%
-  summarise(num_events = sum(num_events)) %>%
-  ungroup() %>%
-  mutate(year = factor(year, labels = c("2019", "2020"))) %>%
-  #top_n(50) %>%
-  ggplot(aes(num_events, reorder(country, num_events), fill=year)) +
-  geom_col() + 
-  labs(title="Events by Country",
-       x="Number of Events", 
-       y="Country") +
-  theme_grey()
+college <- college %>%
+  clean_names()
 ```
 
-### Looking at change from 2019 to 2020 for plastic removal events by country
-
-```{r plastics_change_country}
-plastics %>%
-  filter(country != "Empty") %>% 
-  group_by(country, year) %>%
-  summarise(num_events = sum(num_events), n= n()) %>%
-  ungroup() %>%
-  mutate(year = factor(year, labels = c("2019", "2020"))) %>%
-  mutate( area = factor(ifelse(country %in% c("United States Of America",
-                                              "Philippines", "Malaysia" ,"Japan",
-                                              "India", "China"),"Highlighted","Normal"))) %>%
-  ggplot(aes(year, num_events, group=country, alpha=area, color=country)) +
-  geom_line(size=1.2) + 
-  geom_text(aes(label= country)) +
-  scale_y_log10() +
-  scale_alpha_manual(name = "country", values=c(1, 0.15)) +
-  labs(title="Events by Country 2019 vs 2020",
-       subtitle = "Highlighted countries with changes over events hosted",
-       x="Number of Events", 
-       y="Country") +
-  theme_grey() +
-  theme(legend.position = "none")
-```
-
-### Looking at change from 2019 to 2020 for all plastic removed by country
-
-```{r plastics_change_amount}
-plastics %>%
-  group_by(country, year) %>%
-  summarise_at(vars(hdpe:num_events), sum, na.rm=TRUE) %>%
-  ungroup() %>%
-  mutate(year = factor(year, labels = c("2019", "2020"))) %>%
-  mutate( area = factor(ifelse(country %in% c("Switzerland", "Nigeria", "Sri Lanka",
-                                              "Philippines", "United Arab Emirates" ,"Japan",
-                                              "India"),"Highlighted","Normal"))) %>%
-  ggplot(aes(year, grand_total, group=country, alpha=area, color=country)) +
-  geom_line(size=1.2) + 
-  geom_text(aes(label= country)) +
-  scale_y_log10() +
-  scale_alpha_manual(name = "country", values=c(1, 0.15)) +
-  labs(title="Total Plastic cleaned by Country 2019 vs 2020",
-       subtitle = "Highlighted countries with changes over total plastic removal from 2019 to 2020",
-       x="Total Number of Plastics", 
-       y="Country") +
-  theme_grey() +
-  theme(legend.position = "none")
-```
-
-### Looking at data unassigned
+### Analysis of college enrollment
 
 ```{r}
-### Plastics with no country assigned 
-plastics %>%
-  filter(country == "Empty") %>%
-  group_by(country) %>%
-  summarise_at(vars(hdpe:grand_total), sum, na.rm=TRUE)
+college %>%
+  ggplot(aes(x=year, y=total_enrollment)) +
+  geom_line(size=2) +
+  theme_bw() +
+  labs(x="Year",
+       y="Total Enrollments", 
+       title="Total University Enrollments over time.",
+       subtitle = "Steepest decline follows growth after 2010.")
+```
+
+### Plotting gender distribution in Enrollment
+
+```{r}
+plot1 <- college %>%
+  select(year, males, females) %>%
+  pivot_longer(males:females, names_to ="gender", values_to="values") %>%
+  mutate(gender = factor(gender, levels = c('males', 'females'))) %>%
+  ggplot(aes(year, values, color=gender)) +
+  geom_line(size=2) 
+
+plot1 + 
+  geom_vline(xintercept=2010) +
+  geom_text(x = 2002, y=200000, size=3.5, color='black', label='Both men and women returning to school after 2008') +
+  labs(x='Year', 
+       y='Enrollments',
+       title='Gender enrollment over time',
+       subtitle = 'Enrollment increased after 2008 recession. Downward trend following largest year in enrollments') +
+  theme_bw()
+```
+
+### College programs enrollemnt rates
+
+```{r program_enrollment}
+college_programs <- college %>%
+  select(year, contains(c("year_public", "year_private"))) %>%
+  pivot_longer(cols=x4_year_public:x2_year_private, 
+               names_pattern="[x_]?(.*)_(.*)",
+               names_to =c("program","university_type"), values_to="students")
+```
+
+### College programs enrollment graphs
+
+```{r program_graphs}
+college_programs %>% 
+  mutate(program = factor(program, levels = c("4_year", "2_year"))) %>%
+  ggplot(aes(x=year, y=students, color=program)) +
+  geom_line(size=2, alpha=.8) +
+  facet_grid(university_type ~ .) + 
+  labs(x="Year",
+       y="Student Enrollment",
+       title="Student Program Enrollment by University",
+       subtitle = "Public schools saw increased growth over time while private schools stagnated.") +
+  theme_bw()
 ```
 
