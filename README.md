@@ -4,7 +4,7 @@ Weekly R tidyverse exploratory data analysis
 This repository will be updated on a weekly basis with new data analysis each week. 
 
 ----------------------------------------------------------------------------------
-## Week 7 - HBCU University [Week 6 Link](https://github.com/Tgordon523/tidy_tuesdays/tree/main/02-09-2021)
+## Week 7 - HBCU University [Week 7 Link](https://github.com/Tgordon523/tidy_tuesdays/tree/main/02-09-2021)
 ![Notable Plot](https://github.com/Tgordon523/tidy_tuesdays/blob/main/02-09-2021/plots/Income_changes_family.png)
 
 ----------------------------------------------------------------------------------
