@@ -25,16 +25,11 @@ theme_set(theme_grey())
 ## Load data for Plastic Pollution
 
 ```{r}
-lifetime_earn <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-02-09/lifetime_earn.csv')
 student_debt <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-02-09/student_debt.csv')
-retirement <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-02-09/retirement.csv')
 home_owner <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-02-09/home_owner.csv')
-race_wealth <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-02-09/race_wealth.csv')
 income_time <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-02-09/income_time.csv')
-income_limits <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-02-09/income_limits.csv')
-income_aggregate <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-02-09/income_aggregate.csv')
 income_distribution <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-02-09/income_distribution.csv')
-income_mean <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-02-09/income_mean.csv')
+
 ```
 
 ### Looking at income changes by Class over the years
@@ -87,25 +82,6 @@ ggarrange(p1, p2, labels = c('A', 'B'),
           ncol=1)
 ```
 
-### Student debt analysis
-###g# All races are trending with a higher pct of student loans in later years. 
-#### Hispanic trend is slow follow. Without context, it is hard to make a inference on why it may be.
-
-```{r student_debt}
-student_debt <- student_debt %>%
-  clean_names()
-
-student_debt %>% skim()
-
-student_debt %>%
-  ggplot(aes(year, loan_debt_pct, color=race)) +
-  geom_line(size=1.8) +
-  scale_y_continuous(labels = scales::percent) +
-  labs(title= "Student Loan Debt for different race groups",
-       subtitle= 'All grows debt % increase steadily over the years.')
-
-```
-
 ### Home ownership
 #### Home ownership percentages are more volatile for minorities
 
@@ -127,42 +103,102 @@ home_owner %>%
   
 ```
 
-```{r}
+```{r race-income-dist}
 income_distribution <- income_distribution %>%
   clean_names()
 
 income_distribution %>% skim()
 
-income_distribution %>%
-  select(race) %>%
-  unique()
-
-income_distribution %>%
-  select(income_bracket) %>%
-  unique()
-
+### Not all years match identify earliest group category to use
 income_distribution %>%
   group_by(race) %>% 
   summarise(earliest = min(year))
 
-### TO DO - use alone, exlude combinations (not much difference and keep hispanic any)
-
-income_dist %>%
-  select(income_bracket) %>%
-  unique()
-
-income_dist %>% skim()
-
 income_distribution %>%
+  filter(race %in% c("Asian Alone", "Black Alone", "Hispanic (Any Race)", "White Alone")) %>% 
+  drop_na() %>%
   # mutate(income_bracket = factor(income_bracket, levels=brackets)) %>%
   ggplot(aes(x=year, y=income_mean, color=race)) +
-  geom_line()
-
-income_dist %>%
-  # mutate(income_bracket = factor(income_bracket, levels=brackets)) %>%
-  ggplot(aes(x=year, y=income_mean, color=race)) +
-  geom_line()
+  geom_line(size=1.2) + 
+  labs(x="Year",
+       y="Income Mean",
+       title="Income Mean Changes by Race")
 
 ```
 
+### Student debt analysis
+###g# All races are trending with a higher pct of student loans in later years. 
+#### Hispanic trend is slow follow. Without context, it is hard to make a inference on why it may be.
+
+```{r student_debt}
+student_debt <- student_debt %>%
+  clean_names()
+
+student_debt %>% skim()
+
+student_debt %>%
+  ggplot(aes(year, loan_debt_pct, color=race)) +
+  geom_line(size=1.8) +
+  scale_y_continuous(labels = scales::percent) +
+  labs(title= "Student Loan Debt for different race groups",
+       subtitle= 'All grows debt % increase steadily over the years.')
+
+```
+
+## Model Relationship 
+### Model linear relationship between year and race for student debt %
+
+```{r model_debt}
+library(tidymodels)
+
+### set model
+linear_spec <- linear_reg() %>% 
+  set_mode("regression") %>%
+  set_engine("lm")
+
+### set recipe
+debt_recipe <- 
+  recipe(loan_debt_pct ~ year + race, data=student_debt) %>%
+  step_dummy(all_nominal())
+
+debt_recipe
+
+debt_prep <- prep(debt_recipe) # prepare recipe
+
+debt_prep
+
+student_prep <- juice(debt_prep)
+student_prep ## apply recipe
+
+
+linear_fit <- linear_spec %>%
+  fit(loan_debt_pct ~ year * (race_Hispanic+race_White), data=student_prep)
+
+tidy(linear_fit) ### p-value below .05 for all but white race interactions
+
+glance(linear_fit$fit) ### .84 adjusted r^2 is good for amount of variables 
+```
+
+```{r gen-new-points}
+test <- expand_grid(race = c("Black", "White", "Hispanic"), 
+                 year = 1990:2024)
+```
+
+```{r model-cmp}
+test_prep <- bake(debt_prep, new_data= test)
+
+augment(linear_fit$fit, newdata=test_prep) %>% 
+    mutate(race =case_when(race_Hispanic == 0 & race_White == 0 ~ 'Black',
+                         race_Hispanic == 1 ~ 'Hispanic',
+                         TRUE ~ 'White')) %>%
+  ggplot(aes(x=year, y=.fitted, color=race)) +
+  geom_line(size=1.2) +
+  geom_line(data=student_debt, aes(year, loan_debt_pct, color=race))+
+  annotate("rect",xmin=2016, xmax=2024, ymin=-Inf, ymax=Inf, alpha=.25) +
+  scale_y_continuous(labels = scales::percent) +
+  labs(x="year",
+       y="% of student debt", 
+       title = "Student loan debt by race",
+       subtitle = "Linear regression used to compare and forecast current debt percentages.")
+```
 
