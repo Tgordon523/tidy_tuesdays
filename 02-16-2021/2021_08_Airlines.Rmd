@@ -1,0 +1,83 @@
+---
+title: "Tidy Tuesday (02-09-2021) - US Census Data"
+author: "Tim Gordon"
+date: "February 9, 2021"
+output: github_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+knitr::opts_chunk$set(cache=TRUE, warning=FALSE,
+                      message=FALSE, echo = TRUE, dpi=180,
+                      fig.width = 9, fig.height = 6)
+library(tidyverse)
+library(skimr)
+library(ggplot2)
+library(tidytext)
+library(data.table)
+library(tidytable)
+library(janitor)
+library(ggpubr)
+library(here)
+theme_set(theme_grey())
+```
+
+## Load data for Airline
+
+```{r}
+
+df <- fread(file=here('02-16-2021', 'airline_delay_causes', 'airline_delay_causes.csv') )
+
+df <- df %>%
+  clean_names() 
+
+df <- df %>%
+  #select.(airport_name) %>%
+  separate.(airport_name, into=c("loc", "name"), sep=":") %>%
+  separate.(loc, into = c("city", "state"), sep=",") %>%
+  select.(-v22)
+```
+
+### Exploratory Data Analysis of Flight Data
+
+```{r}
+df %>% 
+  count.(city) %>%
+  arrange.(-N) %>%
+  ggplot(aes(N, city)) +
+  geom_col()
+
+
+df %>%
+  select.(name, state, year) %>%
+  mutate.(decade = 10 * (year %/% 10)) %>%
+  count.(state, decade) %>% 
+  ggplot(aes(N, reorder(state,N))) +
+  geom_col() +
+  facet_wrap(~decade)
+
+df %>%
+  select.(name, state, year) %>%
+  filter.(year < 2020) %>%
+  mutate.(decade = 10 * (year %/% 10)) %>%
+  count.(state, decade) %>% 
+  mutate.(decade = as.factor(decade),
+          state = fct_reorder(state, N)) %>%
+  ggplot(aes(N, state, fill=decade)) +
+  geom_bar(stat="identity", show.legend = FALSE) +
+  scale_x_continuous() +
+  facet_wrap(facets= ~decade) +
+  labs(x="Flights from state",
+       y="State",
+       title = "2000s vs 2010s Domestic US Flights by Sstate")
+
+df %>%
+  select.(arr_flights, arr_delay, carrier_name, airport) %>%
+  filter.(airport == "ORD") %>%
+  ggplot(aes(arr_flights, arr_delay, color=carrier_name)) +
+  geom_point() +
+  facet_wrap(~carrier_name)
+```
+

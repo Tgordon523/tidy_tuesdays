@@ -37,3 +37,7 @@ vignettes/*.pdf
 
 # R Environment Variables
 .Renviron
+
+# Dataset
+/airline_delay_causes
+/airline_delay_causes/*
