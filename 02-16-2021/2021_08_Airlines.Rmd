@@ -21,8 +21,8 @@ library(tidytable)
 library(janitor)
 library(ggpubr)
 library(here)
-library(zoo)
-theme_set(theme_grey())
+library(ggthemes)
+#theme_set(theme_grey())
 ```
 
 ## Load data for Airline
@@ -51,15 +51,21 @@ airlines_limited <- c("Delta Air Lines Inc.", "SkyWest Airlines Inc.", "ExpressJ
 
 top_airports <- c("ORD", "ATL", "LAX", "DFW", "DEN", "JFK")
 
+
+
 df %>% 
-  dt(year < 2020 & carrier_name %in% airlines_limited, .(carrier = mean(carrier_delay), weather = mean(weather_delay), delay = mean(arr_delay), nas=mean(nas_delay), diverted = mean(arr_diverted)), by=.(year, month, carrier_name)) %>%
+  dt(year < 2020 & carrier_name %in% airlines_limited, .(carrier = mean(carrier_delay), weather = mean(weather_delay), nas=mean(nas_delay), diverted = mean(arr_diverted), late = mean(late_aircraft_delay)), by=.(year, month, carrier_name)) %>%
   pivot_longer.(!c(year, month, carrier_name), names_to="delay_type", values_to="amount") %>%
   mutate.(date = as.Date(paste(year, month, 01), "%Y %m %d")) %>%
   ggplot(aes(date, amount, color=delay_type)) +
   geom_line(size=1.3) +
   facet_grid(~carrier_name, scales="free_x") +
   #scale_x_date(label = date_format("%b"), date_breaks = "5 years") +
-  theme(legend.position="bottom")
+  theme_fivethirtyeight()+
+  theme(legend.position="bottom") +
+  labs(x="Date", 
+       y="Avg Delays",
+       title="Top 7 Airlines Avg Delays between 2004 & 2019")
 
   
 df %>%
@@ -69,7 +75,9 @@ df %>%
   ggplot(aes(N, reorder(state,N))) +
   geom_col() +
   facet_wrap(~decade) +
-  labs(x="Cases")
+  labs(x="Cases",
+       y="State",
+       title="Yearly Records")
 
 
 df %>%
@@ -85,24 +93,29 @@ df %>%
   labs(x="Cases",
        y="State",
        title = "Cases across the decades for each state") +
-  theme(legend.position = "bottom")
+  theme(legend.position = "none")
+
+### Dallas/Fort Worth & Atlanta & Chicago O'Hare airport had the most delays out of the 6 biggest airports in the country. 
+### It's interesting that DFW American Airlines and the most delays 
+
+### Delta Airlines also had multiple delays at Atlanta.
 
 df %>%
   select.(arr_flights, arr_delay, carrier_name, airport) %>%
   filter.(airport %in% top_airports & carrier_name %in% airlines_limited) %>%
   ggplot(aes(arr_flights, arr_delay, color=carrier_name)) +
   geom_point() +
-  facet_wrap(~airport)
+  facet_wrap(~airport) +
+  theme_hc() +
+  scale_y_continuous(labels = scales::comma) +
+  theme(legend.position = "bottom") +
+  guides(colour = guide_legend(nrow = 2)) +
+  labs(x='Flights',
+       y='Delays',
+       title="Flights vs Delays",
+       subtitle="Comparison between the most popular airports and carriers")
 
-df %>%
-  filter.(year >= 2010 & year < 2020) %>%
-  filter.(carrier_name %in% airlines_limited) %>%
-  mutate.(state = as.factor(state)) %>%
-  # mutate.(decade = fct_reorder(decade, carrier_name)) %>%
-  arrange.(arr_flights) %>%
-  ggplot(aes(arr_flights, arr_delay)) +
-  geom_point() + 
-  facet_wrap(~carrier_name)
+  
   
 ```
 
