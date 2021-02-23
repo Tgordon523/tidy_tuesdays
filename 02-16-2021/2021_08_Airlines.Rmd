@@ -1,7 +1,7 @@
 ---
-title: "Tidy Tuesday (02-09-2021) - US Census Data"
+title: "Tidy Tuesday (02-16-2021) - US Airlines Data"
 author: "Tim Gordon"
-date: "February 9, 2021"
+date: "February 16, 2021"
 output: github_document
 editor_options: 
   chunk_output_type: console
