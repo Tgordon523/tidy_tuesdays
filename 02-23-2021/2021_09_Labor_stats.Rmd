@@ -33,6 +33,7 @@ earn <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidyt
 
 ### Exploratory Data Analysis of Flight Data
 ## Earn dataset is not perfect. Missing race for different age groups
+## Wages have largely remained stagnant throughout the decade.
 
 ```{r}
 earn %>% skim()
@@ -85,5 +86,22 @@ earn %>%
        subtitle = "Median wages have been stagnate. Women earn less than men across all ages.")
   #mutate(yqtr = zoo::as.yearqtr(yqtr, format = "%y/%q"))
   #mutate(date = as.Date(paste(year, month, 01), "%Y %m %d")) %>%
+```
+
+```{r}
+employed <- employed %>%
+  drop_na() 
+
+employed %>% 
+  filter(industry != "Other services, except private households" & industry != "Private households" & industry != "Wholesale and retail trade") %>%
+  mutate(industry = str_replace(industry, "\r\n", " ") ) %>%
+  mutate(industry = as.factor(industry)) %>%
+  ggplot(aes(x=year, y=employ_n, fill=industry)) +
+  geom_col(position = "dodge") +
+  theme_hc() +
+  scale_y_continuous(labels=scales::comma) +
+  theme(legend.position = "none") +
+  scale_x_continuous(breaks = seq(2015, 2020)) +
+  facet_wrap(~industry) 
 ```
 
