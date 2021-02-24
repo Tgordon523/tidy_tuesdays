@@ -32,3 +32,58 @@ earn <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidyt
 ```
 
 ### Exploratory Data Analysis of Flight Data
+## Earn dataset is not perfect. Missing race for different age groups
+
+```{r}
+earn %>% skim()
+
+
+earn %>%
+  #filter(sex != "Both Sexes" & race != "All Races") %>% 
+  #filter(str_detect(age, "t") & age != "16 to 19 years") %>%
+  mutate(race = as.factor(sex)) %>%
+  ggplot(aes(median_weekly_earn, color=race)) +
+  geom_density(size=1.1) + 
+  facet_grid(~age)
+
+earn %>%
+  filter(sex != "Both Sexes" & race != "All Races") %>%
+  mutate(yqtr = paste0(year, '.', quarter),
+         sex = as.factor(sex),
+         age = as.factor(age)) %>%
+  ggplot(aes(yqtr, median_weekly_earn, fill=race)) +
+  geom_col(position="dodge")
+
+earn %>%
+  filter(sex != "Both Sexes" & race != "All Races" & age != "16 to 24 years" & age != "25 to 54 years") %>%
+  mutate(sex = as.factor(sex),
+         age = as.factor(age)) %>%
+  ggplot(aes(year, median_weekly_earn, fill=race)) +
+  geom_col(position="dodge") +
+  theme_hc() +
+  scale_x_continuous(breaks = seq(2010, 2020)) +
+  labs(x="Year", 
+       y="Median Weekly Earnings", 
+       title="Median Weekly Earnings change in 2010s by Race",
+       subtitle="Asians Weekly earnings increased the most this decade.")
+
+earn %>%
+  filter(sex != "Both Sexes") %>%
+  filter(str_detect(age, "t") & age != "16 to 19 years" & age != "25 to 54 years" & age != "16 to 24 years") %>%
+  mutate(yqtr = paste0(year, '.', quarter),
+         sex = as.factor(sex),
+         age = as.factor(age)) %>%
+  ggplot(aes(yqtr, median_weekly_earn, fill=sex)) +
+  geom_col(position = "dodge") +
+  theme_hc() +
+  scale_y_continuous(labels = scales::comma) +
+  scale_x_discrete() +
+  facet_grid(age ~ .) +
+  labs(x="Year-Quarter",
+       y="Median Weekly Earnings",
+       title="Various age group median earnings from 2010-2020", 
+       subtitle = "Median wages have been stagnate. Women earn less than men across all ages.")
+  #mutate(yqtr = zoo::as.yearqtr(yqtr, format = "%y/%q"))
+  #mutate(date = as.Date(paste(year, month, 01), "%Y %m %d")) %>%
+```
+
