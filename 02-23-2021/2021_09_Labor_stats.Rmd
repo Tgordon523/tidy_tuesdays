@@ -59,6 +59,8 @@ earn %>%
   filter(sex != "Both Sexes" & race != "All Races" & age != "16 to 24 years" & age != "25 to 54 years") %>%
   mutate(sex = as.factor(sex),
          age = as.factor(age)) %>%
+  mutate(race = fct_relevel(race, 
+          "Black or African American", "White", "Asian")) %>%
   ggplot(aes(year, median_weekly_earn, fill=race)) +
   geom_col(position="dodge") +
   theme_hc() +
@@ -84,8 +86,7 @@ earn %>%
        y="Median Weekly Earnings",
        title="Various age group median earnings from 2010-2020", 
        subtitle = "Median wages have been stagnate. Women earn less than men across all ages.")
-  #mutate(yqtr = zoo::as.yearqtr(yqtr, format = "%y/%q"))
-  #mutate(date = as.Date(paste(year, month, 01), "%Y %m %d")) %>%
+
 ```
 
 ```{r}
@@ -94,6 +95,7 @@ employed <- employed %>%
 
 employed %>% 
   filter(industry != "Other services, except private households" & industry != "Private households" & industry != "Wholesale and retail trade") %>%
+  filter(year > 2017) %>%
   mutate(industry = str_replace(industry, "\r\n", " ") ) %>%
   mutate(industry = as.factor(industry)) %>%
   ggplot(aes(x=year, y=employ_n, fill=industry)) +
@@ -102,6 +104,10 @@ employed %>%
   scale_y_continuous(labels=scales::comma) +
   theme(legend.position = "none") +
   scale_x_continuous(breaks = seq(2015, 2020)) +
-  facet_wrap(~industry) 
+  facet_wrap(~industry)  +
+  labs(x="Year",
+       y="# of Employees", 
+       title="Industry changes in the workforce over past 3 years",
+       subtitle = "People centric industries suffered as a result of the pandemic.")
 ```
 
