@@ -4,8 +4,8 @@ Weekly R tidyverse exploratory data analysis
 This repository will be updated on a weekly basis with new data analysis each week. 
 
 ----------------------------------------------------------------------------------
-## Week 10 - US Labor Statistics [Week 9 Link](https://github.com/Tgordon523/tidy_tuesdays/tree/main/02-23-2021)
-![Notable Plot](https://github.com/Tgordon523/tidy_tuesdays/blob/main/02-23-2021/plots/race_weekly_earnings.png)
+## Week 10 - Superbowl Commercials [Week 10 Link](https://github.com/Tgordon523/tidy_tuesdays/tree/main/03-02-2021)
+![Notable Plot](https://github.com/Tgordon523/tidy_tuesdays/blob/main/03-02-2021/plots/superbowl_sex_usage.png)
 
 ----------------------------------------------------------------------------------
 ## Week 9 - US Labor Statistics [Week 9 Link](https://github.com/Tgordon523/tidy_tuesdays/tree/main/02-23-2021)
