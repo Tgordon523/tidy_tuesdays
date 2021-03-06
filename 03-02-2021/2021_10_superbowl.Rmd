@@ -46,8 +46,12 @@ youtube %>%
   ggplot(aes(like_count,brand, fill=years)) +
   geom_col() +
   scale_x_continuous(labels = scales::comma) +
+  scale_fill_brewer(palette=1, type="div") +
   coord_flip() +
-  theme_fivethirtyeight() 
+  theme_fivethirtyeight() +
+  labs(x="",
+       y="Likes",
+       title="Superbowl brands with the most likes ")
 
 youtube %>% 
   mutate(years = case_when(year <= 2005 ~ "2000s part1",
