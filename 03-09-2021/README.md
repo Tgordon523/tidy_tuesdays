@@ -1,5 +1,5 @@
-# 2021 Week 10 Tidy Tuesday Analysis
+# 2021 Week 11 Tidy Tuesday Analysis
 
-Tidy Tuesday 2021 Week 10. Dataset came from FiveThirtyEight. This week covers data regarding superbowl commercials and the data that comes with the Youtube videos. 
+Tidy Tuesday 2021 Week 11. Dataset came from FiveThirtyEight. This week covers data regarding movie information from IMDB and various other sources. The focus of this week is on the Bechdel score which is a measure of female character development. 
 
-![Notable Plot](https://github.com/Tgordon523/tidy_tuesdays/blob/main/03-02-2021/plots/superbowl_sex_usage.png)
+![Notable Plot](https://github.com/Tgordon523/tidy_tuesdays/blob/main/03-09-2021/plots/unadjusted_growth.png)
