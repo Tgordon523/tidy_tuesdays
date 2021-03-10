@@ -84,7 +84,6 @@ here('03-09-2021', 'plots')
 ggsave(here('03-09-2021', 'plots', 'unadjusted_growth.png'), width = 20, height=20)
 
 bechdel %>% 
-  mutate(decade = 10 * (year %/% 10)) %>%
   mutate(tot_gross_2013 = (domgross_2013 + intgross_2013)) %>%
   ggplot(aes(budget_2013, tot_gross_2013, color=binary)) +
   geom_point(size=3) +
@@ -101,7 +100,7 @@ bechdel %>%
   geom_smooth(method="lm") +
   scale_x_continuous(labels = scales::comma) +
   scale_y_continuous(labels = scales::comma) +
-  facet_wrap(decade~ratings, , 4)
+  facet_grid(ratings ~ .)
 
 
 ### Compare new ratings versus old
