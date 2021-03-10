@@ -31,7 +31,7 @@ movies <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tid
 
 ```
 
-### Exploratory Data Analysis of Bechdel Dataset
+### Bechdel Dataset Preparations
 
 ```{r}
 raw_bechdel <- raw_bechdel %>%
@@ -43,15 +43,76 @@ movies %>%
 raw_bechdel %>%
   skim()
 
-movies$imdb <- str_remove(movies$imdb, "tt")
-
 movies <- movies %>%
   mutate(imdb = str_remove(imdb, "tt"))
 
 bechdel <- raw_bechdel %>%
-  left_join(movies)
+  inner_join(movies)
 
 bechdel %>% 
-  filter(is.na(budget))
+  skim()
+
+bechdel <- bechdel %>%
+  filter(!is.na(runtime))
+
+bechdel <- bechdel %>%
+  mutate(runtime = str_remove(runtime, " min"),
+         runtime = str_remove(runtime, "N/A")) %>%
+  mutate(runtime = parse_number(runtime),
+         domgross = parse_number(domgross),
+         intgross = parse_number(intgross),
+         domgross_2013 = parse_number(domgross_2013),
+         intgross_2013 = parse_number(intgross_2013)) %>%
+  filter(!is.na(runtime))
 ```
+
+
+### Exploratory Data Analysis of Bechdel Dataset
+
+```{r}
+
+bechdel %>% 
+  mutate(decade = 10 * (year %/% 10)) %>%
+  mutate(tot_gross = (domgross + intgross)) %>%
+  ggplot(aes(budget, tot_gross, color=binary)) +
+  geom_point(size=3) +
+  geom_smooth(method="lm") +
+  scale_x_continuous(labels = scales::comma) +
+  scale_y_continuous(labels = scales::comma)
+
+here('03-09-2021', 'plots')
+ggsave(here('03-09-2021', 'plots', 'unadjusted_growth.png'), width = 20, height=20)
+
+bechdel %>% 
+  mutate(decade = 10 * (year %/% 10)) %>%
+  mutate(tot_gross_2013 = (domgross_2013 + intgross_2013)) %>%
+  ggplot(aes(budget_2013, tot_gross_2013, color=binary)) +
+  geom_point(size=3) +
+  geom_smooth(method="lm") +
+  scale_x_continuous(labels = scales::comma) +
+  scale_y_continuous(labels = scales::comma) 
+
+bechdel %>% 
+  mutate(decade = 10 * (year %/% 10)) %>%
+  mutate(tot_gross_2013 = (domgross_2013 + intgross_2013)) %>%
+  mutate(ratings = fct_lump_n(rated, 3)) %>%
+  ggplot(aes(budget_2013, tot_gross_2013, color=binary)) +
+  geom_point(size=3) +
+  geom_smooth(method="lm") +
+  scale_x_continuous(labels = scales::comma) +
+  scale_y_continuous(labels = scales::comma) +
+  facet_wrap(decade~ratings, , 4)
+
+
+### Compare new ratings versus old
+bechdel %>%
+  mutate(ratings = fct_lump_n(rated, 3)) %>%
+  group_by(ratings) %>%
+  count()
+
+bechdel %>%
+  group_by(rated) %>%
+  count()
+```
+
 
