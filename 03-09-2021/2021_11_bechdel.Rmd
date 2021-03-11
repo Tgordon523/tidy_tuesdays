@@ -77,11 +77,16 @@ bechdel %>%
   ggplot(aes(budget, tot_gross, color=binary)) +
   geom_point(size=3) +
   geom_smooth(method="lm") +
+  theme_hc() +
   scale_x_continuous(labels = scales::comma) +
-  scale_y_continuous(labels = scales::comma)
+  scale_y_continuous(labels = scales::comma) +
+  labs(x="Budget",
+       y="Unadjusted Total Gross",
+       title="Movie bechdel test vs Movie performance", 
+       subtitle = "Movies that performed well in theatres performed slightly better on the bechdel test")
 
 here('03-09-2021', 'plots')
-ggsave(here('03-09-2021', 'plots', 'unadjusted_growth.png'), width = 20, height=20)
+ggsave(here('03-09-2021', 'plots', 'unadjusted_growth.png'), width = 20, height=20, units="cm")
 
 bechdel %>% 
   mutate(tot_gross_2013 = (domgross_2013 + intgross_2013)) %>%
@@ -96,12 +101,35 @@ bechdel %>%
   mutate(tot_gross_2013 = (domgross_2013 + intgross_2013)) %>%
   mutate(ratings = fct_lump_n(rated, 3)) %>%
   ggplot(aes(budget_2013, tot_gross_2013, color=binary)) +
-  geom_point(size=3) +
+  geom_jitter(size=3) +
   geom_smooth(method="lm") +
+  theme_fivethirtyeight() +
   scale_x_continuous(labels = scales::comma) +
   scale_y_continuous(labels = scales::comma) +
-  facet_grid(ratings ~ .)
+  facet_grid(ratings ~ .) +
+  labs(x="Budget (2013 adj)",
+       y="Total_gross (2013 adj)",
+       title = "Movie ratings bechdel perforamnce",
+       subtitle ="Movies for a younger audience have slightly better bechdel scores.",
+       caption = "Viz by Tim Gordon | Dataset from FiveThirtyEight")
 
+ggsave(here('03-09-2021', 'plots', 'bechdel_adjusted_gross_ratings.png'), width = 20, height=20, units="cm")
+
+bechdel %>%
+  mutate(ratings = fct_lump_n(rated, 3)) %>%
+  ggplot(aes(runtime, color=binary)) +
+  geom_density() +
+  facet_grid(ratings~.) + 
+  theme_minimal() +
+  theme(legend.position="bottom") +
+  # scale_y_continuous(labels=scales::percent) +
+  labs(x="",
+       y="Density", 
+       title="Runtime Distribution by Ratings",
+       subtitle = "Movies for younger audiences have a slightly higher bechdel score distribution",
+       caption = "Viz by Tim Gordon | Dataset from FiveThirtyEight")
+
+ggsave(here('03-09-2021', 'plots', 'runtime_dist.png'), width = 20, height=20, units="cm")
 
 ### Compare new ratings versus old
 bechdel %>%
