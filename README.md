@@ -4,7 +4,11 @@ Weekly R tidyverse exploratory data analysis
 This repository will be updated on a weekly basis with new data analysis each week. 
 
 ----------------------------------------------------------------------------------
-## Week 11 - Bechdel Score [Week 10 Link](https://github.com/Tgordon523/tidy_tuesdays/tree/main/03-09-2021)
+## Week 12 - Steam Games Playerbase [Week 12 Link](https://github.com/Tgordon523/tidy_tuesdays/tree/main/03-16-2021)
+![Notable Plot](https://github.com/Tgordon523/tidy_tuesdays/blob/main/03-16-2021/plots/steam_popular_game_avg.png)
+
+----------------------------------------------------------------------------------
+## Week 11 - Bechdel Score [Week 11 Link](https://github.com/Tgordon523/tidy_tuesdays/tree/main/03-09-2021)
 ![Notable Plot](https://github.com/Tgordon523/tidy_tuesdays/blob/main/03-09-2021/plots/runtime_dist.png)
 
 ----------------------------------------------------------------------------------
