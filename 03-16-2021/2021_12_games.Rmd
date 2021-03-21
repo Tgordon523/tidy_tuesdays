@@ -1,0 +1,94 @@
+---
+title: "Tidy Tuesday (03-16-2021) - games"
+author: "Tim Gordon"
+date: "March 16, 2021"
+output: github_document
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+knitr::opts_chunk$set(cache=TRUE, warning=FALSE,
+                      message=FALSE, echo = TRUE, dpi=180,
+                      fig.width = 9, fig.height = 6)
+library(tidyverse)
+library(ggplot2)
+library(janitor)
+library(ggpubr)
+library(here)
+library(ggthemes)
+library(ggtext)
+```
+
+## Load data for Bechdel
+
+```{r}
+games <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-03-16/games.csv')
+
+```
+
+## Analysis of steam games
+
+```{r games_prep}
+games %>%
+  skimr::skim()
+
+test <- games %>%
+  group_by(gamename) %>%
+  summarise(max_peak = max(peak), avg=mean(avg)) %>%
+  slice_max(avg, n=25) 
+  ggplot(aes(max_peak, gamename)) +
+  geom_col()
+top_played <- test$gamename
+  
+games <- games %>%
+  mutate(abb = match(month, month.name),
+         ym = paste0(year, '.', abb),
+         date = lubridate::parse_date_time(ym, orders = "ym"))
+```
+
+```{r games_viz}
+games %>%  
+  mutate(top_played = gamename %in% top_played) %>%
+  ggplot(aes(x=date, y=avg, fill=top_played)) +
+  # geom_hline(avg)
+  geom_col() +
+  theme_hc() + 
+  scale_fill_tableau() +
+  scale_y_continuous(labels = scales::comma) +
+  labs(x="Months",
+       y="Monthly Avg Players",
+       title= "<span style = 'font-size:14pt;'> Top 25 most <span style = 'color:#FF7F0E;'>popular</span> vs other
+games average monthly players",
+       caption = "Viz by Tim Gordon | Data from Steam") +
+  theme(plot.title.position = "plot", 
+        plot.title = element_markdown(size = 11),
+        plot.subtitle = element_markdown(),
+        legend.position = "none"
+  )
+
+ggsave(here('tidy_tuesdays', '03-16-2021', 'plots', 'steam_popular_game_avg.png'), width = 20, height=20, units="cm")
+
+
+games %>%
+  filter(gamename %in% c("Counter-Strike: Global Offensive", "Dota 2", "Team Fortress 2", "Warframe")) %>%
+  mutate(alpha = gamename=="Team Fortress 2") %>%
+  ggplot(aes(x=date, y=gain, color=gamename, alpha=alpha)) +
+  geom_line(size=1.1) +
+  theme_hc() + 
+  scale_color_tableau() +
+  scale_alpha_manual(name = "game", values=c(0.5, 0.85)) +
+  scale_y_log10()+
+  scale_y_continuous(labels = scales::comma) +
+  labs(x="",
+       y="Month Players",
+       title="Four Established Games Monthly Playerbase Changes",
+       subtitle = "<span style = 'color:#D62728;'>Team Fortress 2</span> has the most consistent average monthly playerbase among long-running popular games",
+       caption = "Viz by Tim Gordon | Data from Steam") +
+  theme(plot.subtitle = element_markdown()) +
+  guides(alpha=FALSE)
+
+ggsave(here('tidy_tuesdays', '03-16-2021', 'plots', 'popular_games_range.png'), width = 30, height=20, units="cm")
+```
+

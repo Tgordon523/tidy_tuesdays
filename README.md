@@ -5,7 +5,7 @@ This repository will be updated on a weekly basis with new data analysis each we
 
 ----------------------------------------------------------------------------------
 ## Week 11 - Bechdel Score [Week 10 Link](https://github.com/Tgordon523/tidy_tuesdays/tree/main/03-09-2021)
-![Notable Plot](https://github.com/Tgordon523/tidy_tuesdays/blob/main/03-09-2021/plots/unadjusted_growth.png)
+![Notable Plot](https://github.com/Tgordon523/tidy_tuesdays/blob/main/03-09-2021/plots/runtime_dist.png)
 
 ----------------------------------------------------------------------------------
 ## Week 10 - Superbowl Commercials [Week 10 Link](https://github.com/Tgordon523/tidy_tuesdays/tree/main/03-02-2021)
