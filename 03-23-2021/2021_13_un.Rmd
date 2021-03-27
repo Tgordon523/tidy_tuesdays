@@ -59,3 +59,16 @@ df %>%
 
 ggsave(here('tidy_tuesdays', '03-23-2021', 'plots', 'important_votes_distribution.jpeg'), width = 20, height=20, units="cm")
 ```
+
+```{r}
+df %>%
+  mutate(year=lubridate::year(date)) %>%
+  mutate(decade = 10 * (year %/% 10)) %>%
+  filter(importantvote==1 & !is.na(issue)) %>%
+  group_by(issue, decade) %>%
+  summarize(n_votes = n(),
+            n_yes=sum(vote=="yes"),
+            pct_yes = n_yes/n_votes)
+```
+
+
