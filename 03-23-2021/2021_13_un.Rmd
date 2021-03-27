@@ -38,17 +38,24 @@ df <- roll_calls %>%
 
 ```
 
-``` {r eda}
+
+```{r eda}
 df %>%
   mutate(year=lubridate::year(date)) %>%
   mutate(decade = 10 * (year %/% 10)) %>%
+  filter(importantvote==1 & !is.na(issue)) %>%
   group_by(issue, vote, decade) %>%
   count() %>% 
   ggplot(aes(decade, n, fill=vote)) +
   geom_col() +
-  facet_wrap(~issue)
+  scale_fill_manual(values=c("#ff8c00", "#b22222", "#228b22")) +
+  facet_wrap(~issue) +
+  theme_hc() +
+  labs(x="",
+       y="",
+       title="Important votes on Key Issues since the 1980s",
+       subtitle = "Many countries abstained from voting on key issue votes like Human Rights and the Palestine conflict",
+       caption = "Data from Harvard's Dataverse | Viz by Tim Gordon")
 
+ggsave(here('tidy_tuesdays', '03-23-2021', 'plots', 'important_votes_distribution.jpeg'), width = 20, height=20, units="cm")
 ```
-
-
-
