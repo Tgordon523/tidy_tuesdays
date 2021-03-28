@@ -60,15 +60,23 @@ df %>%
 ggsave(here('tidy_tuesdays', '03-23-2021', 'plots', 'important_votes_distribution.jpeg'), width = 20, height=20, units="cm")
 ```
 
-```{r}
+```{r eda}
 df %>%
   mutate(year=lubridate::year(date)) %>%
   mutate(decade = 10 * (year %/% 10)) %>%
-  filter(importantvote==1 & !is.na(issue)) %>%
+  filter(!is.na(issue)) %>%
   group_by(issue, decade) %>%
   summarize(n_votes = n(),
             n_yes=sum(vote=="yes"),
-            pct_yes = n_yes/n_votes)
+            pct_yes = n_yes/n_votes) %>%
+  ggplot(aes(decade, pct_yes, color=issue)) +
+  geom_line(size=1.25) + 
+  theme_minimal() +
+  scale_y_continuous(labels = scales::percent) +
+  labs(x="Decades",
+       y="",
+       title="Yes votes increased on many key issues",
+       caption = "Data from Harvard's Dataverse | Viz by Tim Gordon")
 ```
 
 

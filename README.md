@@ -4,6 +4,10 @@ Weekly R tidyverse exploratory data analysis
 This repository will be updated on a weekly basis with new data analysis each week. 
 
 ----------------------------------------------------------------------------------
+## Week 13 - UN Votes [Week 13 Link](https://github.com/Tgordon523/tidy_tuesdays/tree/main/03-23-2021)
+![Notable Plot](https://github.com/Tgordon523/tidy_tuesdays/blob/main/03-23-2021/plots/important_votes_over_years.png)
+
+----------------------------------------------------------------------------------
 ## Week 12 - Steam Games Playerbase [Week 12 Link](https://github.com/Tgordon523/tidy_tuesdays/tree/main/03-16-2021)
 ![Notable Plot](https://github.com/Tgordon523/tidy_tuesdays/blob/main/03-16-2021/plots/steam_popular_game_avg.png)
 
