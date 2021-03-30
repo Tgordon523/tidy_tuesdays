@@ -1,0 +1,35 @@
+---
+title: "Tidy Tuesday (03-30-2021) - makeup"
+author: "Tim Gordon"
+date: "March 30, 2021"
+output: github_document
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+knitr::opts_chunk$set(cache=TRUE, warning=FALSE,
+                      message=FALSE, echo = TRUE, dpi=180,
+                      fig.width = 9, fig.height = 6)
+library(tidyverse)
+library(ggplot2)
+library(janitor)
+library(ggpubr)
+library(here)
+library(ggthemes)
+library(ggtext)
+```
+
+## Load data for Bechdel
+
+```{r load}
+sephora <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-03-30/sephora.csv')
+ulta <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-03-30/ulta.csv')
+allCategories <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-03-30/allCategories.csv')
+allShades <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-03-30/allShades.csv')
+allNumbers <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-03-30/allNumbers.csv')
+
+```
+
+## Analysis of un issues
