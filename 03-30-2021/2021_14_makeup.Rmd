@@ -19,9 +19,10 @@ library(ggpubr)
 library(here)
 library(ggthemes)
 library(ggtext)
+library(tidytext)
 ```
 
-## Load data for Bechdel
+## Load data for Makeup
 
 ```{r load}
 sephora <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-03-30/sephora.csv')
@@ -32,4 +33,23 @@ allNumbers <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience
 
 ```
 
-## Analysis of un issues
+## Analysis of makeup
+
+```{r}
+allCategories %>% 
+  skimr::skim()
+
+allCategories %>%
+  unnest_tokens(word, categories) %>%
+  count(word) %>%
+  ggplot(aes(word, n)) +
+  geom_col() +
+  coord_flip()
+  
+
+allCategories %>% 
+  ggplot(aes(categories, lightness)) +
+  geom_col() +
+  coord_flip()
+```
+
