@@ -1,7 +1,7 @@
 ---
-title: "Tidy Tuesday (03-30-2021) - makeup"
+title: "Tidy Tuesday (04-06-2021) - deforestation"
 author: "Tim Gordon"
-date: "March 30, 2021"
+date: "April 06, 2021"
 output: github_document
 editor_options:
   chunk_output_type: console
@@ -22,56 +22,72 @@ library(ggtext)
 library(tidytext)
 ```
 
-## Load data for Makeup
+## Load data for Deforestation
 
 ```{r load}
-sephora <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-03-30/sephora.csv')
-ulta <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-03-30/ulta.csv')
-allCategories <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-03-30/allCategories.csv')
-allShades <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-03-30/allShades.csv')
-allNumbers <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-03-30/allNumbers.csv')
+forest <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-04-06/forest.csv')
+forest_area <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-04-06/forest_area.csv')
+brazil_loss <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-04-06/brazil_loss.csv')
+soybean_use <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-04-06/soybean_use.csv')
+vegetable_oil <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-04-06/vegetable_oil.csv')
 
 ```
 
-## Analysis of makeup
+## Analysis of Deforestation
 
 ```{r}
 
-allCategories %>%
-  unnest_tokens(word, categories) %>%
-  count(word) %>%
-  filter(word != 'descriptor' & word != 'name' & word != 'sand') %>%
-  ggplot(aes(n, reorder(word, n))) +
-  geom_col() +
-  theme_few() +
-  labs(title="Most Common Makeup Categories",
-       x="",
-       y="Theme",
-       caption="Viz by Tim Gordon | Dataset from The Pudding") +
-  theme(plot.title.position = "plot",
-        plot.caption.position = "plot") 
+forest_area %>%
+  skimr::skim()
 
 
-```
-
-
-```{r}
-
-
-allShades %>%
-  # top_n(hue, 1130) %>%
-  ggplot(aes(x=hue, y=sat)) +
-  geom_point(aes(color=hex))+ 
-  scale_color_identity() +
-  scale_x_log10() +
-  scale_y_log10() +
-  theme_void() +
-  labs(title="Make-up Shades",
-       x="",
-       y="",
-       caption="Viz by Tim Gordon | Dataset from The Pudding") +
-  theme(plot.title.position = "plot",
+forest_area %>%
+  group_by(year) %>%
+  summarise(avg_area = mean(forest_area),
+            count = n(), .groups='drop') %>%
+  ggplot(aes(x=year, y=avg_area)) +
+  geom_point(size=3, color="#6E260E") +
+  geom_step(size=0.75, color = "#808000") +
+  scale_x_continuous(breaks=seq(1990,2020, by=5)) +
+  theme_grey() +
+  theme(legend.position = "none",
+        plot.title.position = "plot",
         plot.caption.position = "plot",
-        plot.caption = element_text(size=12)) 
+        plot.margin = unit(c(.2,.10, .2, .10), "cm"), #top, right, bottom, left
+        plot.caption = element_text(size=12)) +
+  labs(title="Average Forest Area Decreasing Over Years",
+       caption="Dataset from Our World in Data | Viz by Tim Gordon",
+       x = "",
+       y="Average Forest Area (%)") 
 ```
+
+
+```{r}
+soybean_use %>%
+  skimr::skim()
+
+### processed into veggie oil, biofuel or processed animal feed
+
+soybean_usage <- soybean_use %>%
+  pivot_longer(cols=human_food:processed,names_to="type", values_to="amount") 
+
+soybean_usage %>%
+  mutate(decade = 10 * (year %/% 10)) %>%
+  ggplot(aes(x=decade, y=amount, fill=type)) +
+  geom_col() +
+  scale_x_continuous(breaks=seq(1960,2020, by=10)) +
+  scale_y_continuous(labels = scales::comma) +
+  theme(legend.position = "none",
+        plot.title.position = "plot",
+        plot.caption.position = "plot",
+        plot.margin = unit(c(.2,.10, .2, .10), "cm"), #top, right, bottom, left
+        plot.caption = element_text(size=12)) +
+  labs(title="Soybean Production over the Decades ",
+       caption="Dataset from Our World in Data | Viz by Tim Gordon",
+       x = "",
+       y="Products Developed from Soybean")
+```
+
+
+
 
