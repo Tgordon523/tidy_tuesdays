@@ -1,7 +1,7 @@
 ---
-title: "Tidy Tuesday (04-06-2021) - deforestation"
+title: "Tidy Tuesday (04-13-2021) - US Post Offices"
 author: "Tim Gordon"
-date: "April 06, 2021"
+date: "April 13, 2021"
 output: github_document
 editor_options:
   chunk_output_type: console
@@ -19,7 +19,8 @@ library(janitor)
 library(here)
 library(ggthemes)
 library(ggtext)
-library(tidytext)
+library(maps)
+library(gganimate)
 ```
 
 ## Load data for Deforestation
@@ -35,16 +36,31 @@ post_offices <- readr::read_csv('https://raw.githubusercontent.com/rfordatascien
 post_offices %>%
   skimr::skim()
 
+### Remove discountinued offices not possible
+post_offices <- post_offices %>%
+  filter(established >= 1800 & discontinued < 2021) %>%
+  mutate(gnis_full_name = paste0(str_to_title(gnis_name), ", ", str_to_title(gnis_county))) %>%
+  select(!c(id, orig_county)) %>%
+  distinct()
 
-  # theme(legend.position = "none",
-  #       plot.title.position = "plot",
-  #       plot.caption.position = "plot",
-  #       plot.margin = unit(c(.2,.10, .2, .10), "cm"), #top, right, bottom, left
-  #       plot.caption = element_text(size=12)) +
-  # labs(title="Average Forest Area Decreasing Over Years",
-  #      caption="Dataset from Our World in Data | Viz by Tim Gordon",
-  #      x = "",
-  #      y="Average Forest Area (%)") 
+post_offices %>%
+  filter(gnis_name != "NA" & duration > 100) %>%
+  group_by(gnis_state) %>%
+  summarise(sum = sum(duration), 
+            count = n()) %>%
+  mutate(gnis_state = fct_reorder(gnis_state, count)) %>%
+  ggplot(aes(x=count, y=gnis_state, alpha=.8, fill="#7B1818")) +
+  geom_col() +
+  theme_grey() +
+  theme(legend.position = "none",
+        plot.title.position = "plot",
+        plot.caption.position = "plot",
+        plot.margin = unit(c(.2,.10, .2, .10), "cm"), #top, right, bottom, left
+        plot.caption = element_text(size=12)) +
+  labs(title="States with the most Post Offices over 100 years old",
+       caption="Viz by Tim Gordon | Dataset from Cameron Blevins & Richard W. Helbock",
+       x = "",
+       y="State")
 ```
 
 
