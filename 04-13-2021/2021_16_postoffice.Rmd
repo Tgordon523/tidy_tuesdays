@@ -1,0 +1,51 @@
+---
+title: "Tidy Tuesday (04-06-2021) - deforestation"
+author: "Tim Gordon"
+date: "April 06, 2021"
+output: github_document
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+knitr::opts_chunk$set(cache=TRUE, warning=FALSE,
+                      message=FALSE, echo = TRUE, dpi=180,
+                      fig.width = 9, fig.height = 6)
+library(tidyverse)
+library(ggplot2)
+library(janitor)
+# library(ggpubr)
+library(here)
+library(ggthemes)
+library(ggtext)
+library(tidytext)
+```
+
+## Load data for Deforestation
+
+```{r load}
+post_offices <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-04-13/post_offices.csv')
+
+```
+
+## Analysis of Deforestation
+
+```{r}
+post_offices %>%
+  skimr::skim()
+
+
+  # theme(legend.position = "none",
+  #       plot.title.position = "plot",
+  #       plot.caption.position = "plot",
+  #       plot.margin = unit(c(.2,.10, .2, .10), "cm"), #top, right, bottom, left
+  #       plot.caption = element_text(size=12)) +
+  # labs(title="Average Forest Area Decreasing Over Years",
+  #      caption="Dataset from Our World in Data | Viz by Tim Gordon",
+  #      x = "",
+  #      y="Average Forest Area (%)") 
+```
+
+
+
