@@ -2,7 +2,13 @@
 Weekly R tidyverse exploratory data analysis
 
 This repository will be updated on a weekly basis with new data analysis each week. 
+----------------------------------------------------------------------------------
+## Week 16 - US Post Office [Week 16 Link](https://github.com/Tgordon523/tidy_tuesdays/tree/main/04-13-2021)
+![Notable Plot](https://github.com/Tgordon523/tidy_tuesdays/blob/main/04-13-2021/plots/state_post_offices.png)
 
+----------------------------------------------------------------------------------
+## Week 15 - Deforestation [Week 15 Link](https://github.com/Tgordon523/tidy_tuesdays/tree/main/04-06-2021)
+![Notable Plot](https://github.com/Tgordon523/tidy_tuesdays/blob/main/04-06-2021/plots/average_forest_area_overtime.png)
 
 ----------------------------------------------------------------------------------
 ## Week 14 - Makeup [Week 14 Link](https://github.com/Tgordon523/tidy_tuesdays/tree/main/03-30-2021)
