@@ -18,9 +18,7 @@ library(janitor)
 # library(ggpubr)
 library(here)
 library(ggthemes)
-library(ggtext)
-library(maps)
-library(gganimate)
+# library(ggtext)
 ```
 
 ## Load data
@@ -69,7 +67,17 @@ netflix_titles %>%
   # count(type, duration) %>%
   ggplot(aes(duration)) +
   geom_histogram(aes(y=..density.., fill="brickred"), color="white", bins=15) +
-  geom_density(fill="grey", alpha=.7, bins=15)
+  geom_density(fill="grey", alpha=.7, bins=15) +
+  theme_grey() +
+  theme(plot.title.position = "plot",
+        legend.position = "none",
+      plot.caption.position = "plot",
+      plot.margin = unit(c(.2,.10, .2, .10), "cm"), #top, right, bottom, left
+      plot.caption = element_text(size=12)) +
+  labs(title="Netflix Movie Runtimes",
+       caption="Viz by Tim Gordon | Dataset from Kaggle",
+       x = "",
+       y="") 
 
 netflix_titles %>%
   count(genre) %>%
@@ -87,45 +95,9 @@ netflix_titles %>%
        x = "",
        y="Genre")  
 
-netflix_titles %>%
-  count(country) %>%
-  # filter(country != "United States") %>%
-  ggplot(aes(country, n)) +
-  geom_col()
 ```
 
 
-
-```{r}
-post_offices %>%
-  skimr::skim()
-
-### Remove discountinued offices not possible
-post_offices <- post_offices %>%
-  filter(established >= 1800 & discontinued < 2021) %>%
-  mutate(gnis_full_name = paste0(str_to_title(gnis_name), ", ", str_to_title(gnis_county))) %>%
-  select(!c(id, orig_county)) %>%
-  distinct()
-
-post_offices %>%
-  filter(gnis_name != "NA" & duration > 100) %>%
-  group_by(gnis_state) %>%
-  summarise(sum = sum(duration), 
-            count = n()) %>%
-  mutate(gnis_state = fct_reorder(gnis_state, count)) %>%
-  ggplot(aes(x=count, y=gnis_state, fill="#DC143C")) +
-  geom_col() +
-  theme_grey() +
-  theme(legend.position = "none",
-        plot.title.position = "plot",
-        plot.caption.position = "plot",
-        plot.margin = unit(c(.2,.10, .2, .10), "cm"), #top, right, bottom, left
-        plot.caption = element_text(size=12)) +
-  labs(title="States with Post Offices over 100 years old",
-       caption="Viz by Tim Gordon | Dataset from Cameron Blevins & Richard W. Helbock",
-       x = "",
-       y="State")
-```
 
 
 
