@@ -1,7 +1,7 @@
 ---
-title: "Tidy Tuesday (04-20-2021) - Netflix"
+title: "Tidy Tuesday (04-27-2021) - CEO"
 author: "Tim Gordon"
-date: "April 20, 2021"
+date: "April 27, 2021"
 output: github_document
 editor_options:
   chunk_output_type: console
@@ -15,7 +15,7 @@ knitr::opts_chunk$set(cache=TRUE, warning=FALSE,
 library(tidyverse)
 library(ggplot2)
 library(janitor)
-# library(ggpubr)
+library(tidytext)
 library(here)
 library(ggthemes)
 # library(ggtext)
@@ -24,76 +24,46 @@ library(ggthemes)
 ## Load data
 
 ```{r load}
-netflix_titles <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-04-20/netflix_titles.csv')
+departures <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-04-27/departures.csv')
 
 ```
 
 ## Analysis
 
 ```{r}
-netflix_titles <- netflix_titles %>%
-  mutate(genre = str_extract(listed_in, "[^,]+")) %>%
-  mutate(genre = str_trim(str_replace(genre, "(TV|Movies)", ""))) 
+departures %>% skimr::skim()
+```
+
+
+```{r}
+departures %>%
+  unnest_tokens(word, notes) %>%
+  anti_join(stop_words) %>%
+  count(word, sort=TRUE) %>%
+  slice_max(n, 100) %>%
+  ggplot(aes(x= n, y= word)) +
+  geom_col()
+
+
 
 # netflix_titles %>%
-#   tidytext::unnest_tokens(word, genre) %>%
-#   count(word, sort=TRUE) %>%
-#   mutate(word = fct_reorder(word, n)) %>%
-#   ggplot(aes(word, n)) +
-#   geom_col(aes(fill="brickred"), show.legend=FALSE) +
-#   coord_flip() +
+#   mutate(duration = parse_number(duration)) %>%
+#   filter(type=="Movie") %>%
+#   # count(type, duration) %>%
+#   ggplot(aes(duration)) +
+#   geom_histogram(aes(y=..density.., fill="brickred"), color="white", bins=15) +
+#   geom_density(fill="grey", alpha=.7, bins=15) +
+#   theme_grey() +
 #   theme(plot.title.position = "plot",
-#         plot.caption.position = "plot",
-#         plot.margin = unit(c(.2,.10, .2, .10), "cm"), #top, right, bottom, left
-#         plot.caption = element_text(size=12)) +
-#   labs(title="Netflix breakdown",
+#         legend.position = "none",
+#       plot.caption.position = "plot",
+#       plot.margin = unit(c(.2,.10, .2, .10), "cm"), #top, right, bottom, left
+#       plot.caption = element_text(size=12)) +
+#   labs(title="Netflix Movie Runtimes",
 #        caption="Viz by Tim Gordon | Dataset from Kaggle",
 #        x = "",
-#        y="Words")  
-  
-netflix_titles %>% summary()
+#        y="") 
 
-netflix_titles %>%
-  mutate(duration = parse_number(duration)) %>%
-  filter(type!="Movie") %>%
-  # count(type, duration) %>%
-  ggplot(aes(duration, fill="brickred")) +
-  geom_histogram(aes(y=..density.., fill="brickred"), color="white", bins=15) +
-  geom_density(fill="grey", alpha=.7, bins=15)
-
-netflix_titles %>%
-  mutate(duration = parse_number(duration)) %>%
-  filter(type=="Movie") %>%
-  # count(type, duration) %>%
-  ggplot(aes(duration)) +
-  geom_histogram(aes(y=..density.., fill="brickred"), color="white", bins=15) +
-  geom_density(fill="grey", alpha=.7, bins=15) +
-  theme_grey() +
-  theme(plot.title.position = "plot",
-        legend.position = "none",
-      plot.caption.position = "plot",
-      plot.margin = unit(c(.2,.10, .2, .10), "cm"), #top, right, bottom, left
-      plot.caption = element_text(size=12)) +
-  labs(title="Netflix Movie Runtimes",
-       caption="Viz by Tim Gordon | Dataset from Kaggle",
-       x = "",
-       y="") 
-
-netflix_titles %>%
-  count(genre) %>%
-  filter(genre != "") %>%
-  mutate(genre = fct_reorder(genre, n)) %>%
-  ggplot(aes(genre, n)) +
-  geom_col(aes(fill="brickred"), show.legend=FALSE) +
-  coord_flip() +
-  theme(plot.title.position = "plot",
-        plot.caption.position = "plot",
-        plot.margin = unit(c(.2,.10, .2, .10), "cm"), #top, right, bottom, left
-        plot.caption = element_text(size=12)) +
-  labs(title="Netflix Breakdown by Genre",
-       caption="Viz by Tim Gordon | Dataset from Kaggle",
-       x = "",
-       y="Genre")  
 
 ```
 
