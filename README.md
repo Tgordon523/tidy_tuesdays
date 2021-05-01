@@ -3,6 +3,14 @@ Weekly R tidyverse exploratory data analysis
 
 This repository will be updated on a weekly basis with new data analysis each week. 
 ----------------------------------------------------------------------------------
+## Week 18 - CEO Departures [Week 16 Link](https://github.com/Tgordon523/tidy_tuesdays/tree/main/04-27-2021)
+![Notable Plot](https://github.com/Tgordon523/tidy_tuesdays/blob/main/04-27-2021/plots/state_post_offices.png)
+
+----------------------------------------------------------------------------------
+## Week 17 - Netflix Titles [Week 16 Link](https://github.com/Tgordon523/tidy_tuesdays/tree/main/04-20-2021)
+![Notable Plot](https://github.com/Tgordon523/tidy_tuesdays/blob/main/04-20-2021/plots/genre_breakdown.png)
+
+----------------------------------------------------------------------------------
 ## Week 16 - US Post Office [Week 16 Link](https://github.com/Tgordon523/tidy_tuesdays/tree/main/04-13-2021)
 ![Notable Plot](https://github.com/Tgordon523/tidy_tuesdays/blob/main/04-13-2021/plots/state_post_offices.png)
 
