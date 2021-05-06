@@ -47,12 +47,21 @@ areas <- water %>%
   select(country1) %>%
   unique() 
 
-areas[22,]
-map(database = "world", regions = c(areas[15,]))
+check <- c("Ethiopia",	"Kenya",	"Central African Republic",	"Uganda",	"Niger",	"Mozambique",	"Liberia",	"Swaziland",	"Sierra Leone",	"Zambia",	"Nigeria",	"Ghana",	"Burkina Faso",	"Zimbabwe",	"Madagascar",	"Tanzania",	"South Sudan",	"Rwanda",	"South Africa",	"Burundi",	"Gambia",	"Democratic Republic of the Congo",	"Angola",	"Algeria",	"Namibia",	"Sudan",	"Chad",	"Mauritania",	"Egypt")
+
+# write.table(areas, "clipboard", sep=",")
+africa <- map(database = "world", regions = check)
+
+map <- map(database = "world", filter="Africa")
 ```
 
 
 ```{r}
+library("rnaturalearth")
+library("rnaturalearthdata")
+library("sf")
+
+world <- ne_countries(scale = "medium", returnclass = "sf")
 
 water %>%
   filter(status_id != 'u', !is.na(installer)) %>%
@@ -60,18 +69,38 @@ water %>%
   ungroup() %>%
   slice_max(n, n=25)
 
-water %>%
+water_levels <- water %>%
   filter(status_id != 'u', !is.na(country_name)) %>%
   group_by(country_name) %>%
   summarise(n = n()) %>%
   mutate(freq = n/sum(n)) %>%
     # count(country_name, sort=TRUE) %>%
   mutate(country_name = fct_reorder(country_name, n)) %>%
-  ggplot(aes(country_name, y=n, fill=freq)) +
-  geom_col() +
-  coord_flip()  
+  rename(name = country_name)
 
+dat_maps %>%
+  filter(region_un=='Africa') %>%
+  ggplot() +
+  geom_sf() +
+  geom_polygon(data=water_levels)
 
+world %>%
+  filter(region_un=='Africa')
+
+dat_map <- inner_join(water_levels, world, by="name")
+
+dat_maps <- st_as_sf(dat_map)
+
+library(tmap)
+library(tmaptools)
+qtm(dat_maps, fill="n", palette="Blues")
+
+tm_shape(dat_maps) +
+  tm_polygons(col = "n",
+              style="quantile",
+              legend.hist=FALSE, 
+              title="Active Water Access Points") +
+  tm_style("watercolor") 
 ### Plot key values in CEO departures
 # departures %>%
 #   filter(fyear > 1990, fyear < 2020, !is.na(fyear), depart_reason != 'No Departure', depart_reason != 'Other', depart_reason != 'CEO Missing Data') %>%
