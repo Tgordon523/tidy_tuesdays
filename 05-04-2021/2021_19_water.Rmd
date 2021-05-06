@@ -18,6 +18,7 @@ library(janitor)
 library(tidytext)
 library(here)
 library(ggthemes)
+library(maps)
 # library(ggtext)
 ```
 
@@ -38,7 +39,38 @@ water %>% skimr::skim()
 
 ```{r}
 
-str(water)
+areas <- water %>%
+  filter(!country_name %in% c("Peru","Dominican Republic", "Timor-Leste", "Mali"), !is.na(country_name)) %>%
+  select(country_name, lat_deg, lon_deg) %>%
+  mutate(country = str_extract(country_name, "^[^-]+")) %>% 
+  mutate(country1 = gsub("Congo ", "Democratic Republic of the Congo", country)) %>%
+  select(country1) %>%
+  unique() 
+
+areas[22,]
+map(database = "world", regions = c(areas[15,]))
+```
+
+
+```{r}
+
+water %>%
+  filter(status_id != 'u', !is.na(installer)) %>%
+  count(installer, sort=TRUE) %>%
+  ungroup() %>%
+  slice_max(n, n=25)
+
+water %>%
+  filter(status_id != 'u', !is.na(country_name)) %>%
+  group_by(country_name) %>%
+  summarise(n = n()) %>%
+  mutate(freq = n/sum(n)) %>%
+    # count(country_name, sort=TRUE) %>%
+  mutate(country_name = fct_reorder(country_name, n)) %>%
+  ggplot(aes(country_name, y=n, fill=freq)) +
+  geom_col() +
+  coord_flip()  
+
 
 ### Plot key values in CEO departures
 # departures %>%
