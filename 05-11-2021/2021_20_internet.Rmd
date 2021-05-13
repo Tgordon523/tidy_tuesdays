@@ -1,0 +1,97 @@
+---
+title: "Tidy Tuesday (05-11-2021) -Internet Access"
+author: "Tim Gordon"
+date: "May 11, 2021"
+output: github_document
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+knitr::opts_chunk$set(cache=TRUE, warning=FALSE,
+                      message=FALSE, echo = TRUE, dpi=180,
+                      fig.width = 9, fig.height = 6)
+library(tidyverse)
+library(ggplot2)
+library(janitor)
+library(tidytext)
+library(here)
+library(ggthemes)
+library(maps)
+library(zipcodeR)
+```
+
+## Load data
+
+```{r load}
+broadband <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-05-11/broadband.csv')
+
+```
+
+## Analysis
+
+
+```{r}
+broadband %>% skimr::skim()
+
+broadband <- broadband %>%
+  clean_names() 
+
+il_net <- broadband %>%
+  filter(st == "IL")
+
+oh_net <- broadband %>%
+  filter(st == "OH")
+
+oh <- map_data("county", "ohio")
+il <- map_data("county", "illinois")
+
+oh_net$county_name <- word(oh_net$county_name, 1)
+oh_net$county_name <- tolower(oh_net$county_name)
+names(oh_net)[names(oh_net) == "country_name"] <- "subregion"
+
+il_net$county_name <- word(il_net$county_name, 1)
+il_net$county_name <- tolower(il_net$county_name)
+names(il_net)[names(il_net) == "country_name"] <- "subregion"
+
+
+```
+
+
+```{r}
+
+il_data <- inner_join(il, il_net, by="subregion")
+oh_data <- inner_join(oh, oh_net, by="subregion")
+
+```
+
+
+```{r}
+### Plot key values in CEO departures
+# departures %>%
+#   filter(fyear > 1990, fyear < 2020, !is.na(fyear), depart_reason != 'No Departure', depart_reason != 'Other', depart_reason != 'CEO Missing Data') %>%
+#   mutate(decade = 10 * (fyear %/% 10)) %>%
+#   ggplot(aes(x=decade,fill=depart_reason)) +
+#   geom_bar() +
+#   scale_fill_brewer() +
+#   coord_flip() +
+#   theme_minimal() +
+#   guides(fill = guide_legend(nrow = 1, reverse=TRUE)) +
+#   theme(plot.title.position = "plot",
+#         legend.position = "top",
+#         plot.caption.position = "plot",
+#         plot.margin = unit(c(.2,.10, .2, .10), "cm"), #top, right, bottom, left
+#         plot.caption = element_text(size=12)) +
+#   labs(title="CEO Departures",
+#        caption="Viz by Tim Gordon | Dataset from DataIsPlural",
+#        x = "",
+#        y="") 
+ 
+
+```
+
+
+
+
+
