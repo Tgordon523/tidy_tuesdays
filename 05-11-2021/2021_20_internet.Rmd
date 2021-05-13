@@ -47,13 +47,16 @@ oh_net <- broadband %>%
 oh <- map_data("county", "ohio")
 il <- map_data("county", "illinois")
 
+il <- il %>%
+  rename(county_name = subregion)
+oh <- oh %>%
+  rename(county_name = subregion)
+
 oh_net$county_name <- word(oh_net$county_name, 1)
 oh_net$county_name <- tolower(oh_net$county_name)
-names(oh_net)[names(oh_net) == "country_name"] <- "subregion"
 
 il_net$county_name <- word(il_net$county_name, 1)
 il_net$county_name <- tolower(il_net$county_name)
-names(il_net)[names(il_net) == "country_name"] <- "subregion"
 
 
 ```
@@ -61,8 +64,8 @@ names(il_net)[names(il_net) == "country_name"] <- "subregion"
 
 ```{r}
 
-il_data <- inner_join(il, il_net, by="subregion")
-oh_data <- inner_join(oh, oh_net, by="subregion")
+il_data <- inner_join(il, il_net, by="county_name")
+oh_data <- inner_join(oh, oh_net, by="county_name")
 
 ```
 
