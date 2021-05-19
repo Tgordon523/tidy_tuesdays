@@ -114,9 +114,9 @@ p_il <- il_data %>%
   theme_map() + 
   scale_fill_brewer(palette="Greens")+ 
   # geom_text(aes(label=county_name)) +
-  guides(fill = guide_legend(nrow = 1)) +
+  guides(fill = guide_legend(ncol = 1)) +
   theme(plot.title.position = "plot",
-         legend.position = "top",
+         legend.position = "left",
          plot.caption.position = "plot",
          plot.margin = unit(c(.2,.10, .2, .10), "cm"), #top, right, bottom, left
          plot.caption = element_text(size=12)) +
@@ -127,6 +127,13 @@ p_il <- il_data %>%
         fill="Usage")
   
 library(patchwork)
+
+plots <- p_il | p_oh
+plots + plot_annotation(
+  title = 'Broadband usage across IL and OH',
+  subtitle = "Urban areas use much more broadband than rural areas.",
+  caption = 'Viz by Tim Gordon | Dataset from The Verge')
+
 ```
 
 
