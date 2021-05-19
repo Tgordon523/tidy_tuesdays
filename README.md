@@ -4,6 +4,10 @@ Weekly R tidyverse exploratory data analysis
 This repository will be updated on a weekly basis with new data analysis each week. 
 
 ----------------------------------------------------------------------------------
+## Week 20 - US Broadband [Week 20 Link](https://github.com/Tgordon523/tidy_tuesdays/tree/main/05-11-2021)
+![Notable Plot](https://github.com/Tgordon523/tidy_tuesdays/blob/main/05-11-2021/plots/il_vs_ohio_usage.png)
+
+----------------------------------------------------------------------------------
 ## Week 19 - Water Sources [Week 19 Link](https://github.com/Tgordon523/tidy_tuesdays/tree/main/05-04-2021)
 ![Notable Plot](https://github.com/Tgordon523/tidy_tuesdays/blob/main/05-04-2021/plots/ceo_departures.png)
 
