@@ -48,15 +48,20 @@ oh <- map_data("county", "ohio")
 il <- map_data("county", "illinois")
 
 il <- il %>%
-  rename(county_name = subregion)
+  rename(county_name = subregion) %>%
+  mutate(county_name = str_replace_all(county_name, fixed(" "), ""))
+
+il_net
 oh <- oh %>%
-  rename(county_name = subregion)
+  rename(county_name = subregion) %>%
+  mutate(county_name = str_replace_all(county_name, fixed(" "), ""))
 
 oh_net$county_name <- word(oh_net$county_name, 1)
 oh_net$county_name <- tolower(oh_net$county_name)
 
 il_net$county_name <- word(il_net$county_name, 1)
 il_net$county_name <- tolower(il_net$county_name)
+
 
 
 ```
@@ -67,33 +72,62 @@ il_net$county_name <- tolower(il_net$county_name)
 il_data <- inner_join(il, il_net, by="county_name")
 oh_data <- inner_join(oh, oh_net, by="county_name")
 
-```
+x  <- seq(.1,1,.1)
 
+il_data <- il_data %>%
+  mutate(usage = cut(as.numeric(broadband_usage), 
+                            breaks=c(0,0.2,0.4,0.6,0.8,1.01), 
+                            labels=c("0-20%","20%-40%","40%-60%","60%-80%","80%-100%"))) 
+
+
+oh_data <- oh_data %>%
+  mutate(usage = cut(as.numeric(broadband_usage), 
+                            breaks=c(0,0.2,0.4,0.6,0.8,1.01), 
+                            labels=c("0-20%","20%-40%","40%-60%","60%-80%","80%-100%"))) 
+```
 
 ```{r}
-### Plot key values in CEO departures
-# departures %>%
-#   filter(fyear > 1990, fyear < 2020, !is.na(fyear), depart_reason != 'No Departure', depart_reason != 'Other', depart_reason != 'CEO Missing Data') %>%
-#   mutate(decade = 10 * (fyear %/% 10)) %>%
-#   ggplot(aes(x=decade,fill=depart_reason)) +
-#   geom_bar() +
-#   scale_fill_brewer() +
-#   coord_flip() +
-#   theme_minimal() +
-#   guides(fill = guide_legend(nrow = 1, reverse=TRUE)) +
-#   theme(plot.title.position = "plot",
-#         legend.position = "top",
-#         plot.caption.position = "plot",
-#         plot.margin = unit(c(.2,.10, .2, .10), "cm"), #top, right, bottom, left
-#         plot.caption = element_text(size=12)) +
-#   labs(title="CEO Departures",
-#        caption="Viz by Tim Gordon | Dataset from DataIsPlural",
-#        x = "",
-#        y="") 
- 
+p_oh <- oh_data %>%
+  # filter(availability < .5) %>%
+  ggplot(aes(x=long,y=lat, fill=factor(usage), group=county_name)) +
+  geom_polygon(color="grey90", size=.7) +
+  coord_equal() +
+  theme_map() + 
+  scale_fill_brewer(palette="Greens")+ 
+  # geom_text(aes(label=county_name)) +
+  theme(plot.title.position = "plot",
+         legend.position = "none",
+         plot.caption.position = "plot",
+         plot.margin = unit(c(.2,.10, .2, .10), "cm"), #top, right, bottom, left
+         plot.caption = element_text(size=12)) +
+   labs(#title="Ohio Broadband Availability",
+        #caption="Viz by Tim Gordon | Dataset from DataIsPlural",
+        x = "",
+        y="",
+        fill="Usage")
 
+p_il <- il_data %>%
+  # filter(availability < .5) %>%
+  ggplot(aes(x=long,y=lat, fill=factor(usage), group=county_name)) +
+  geom_polygon(color="grey90", size=.7) +
+  coord_equal() +
+  theme_map() + 
+  scale_fill_brewer(palette="Greens")+ 
+  # geom_text(aes(label=county_name)) +
+  guides(fill = guide_legend(nrow = 1)) +
+  theme(plot.title.position = "plot",
+         legend.position = "top",
+         plot.caption.position = "plot",
+         plot.margin = unit(c(.2,.10, .2, .10), "cm"), #top, right, bottom, left
+         plot.caption = element_text(size=12)) +
+   labs(#title="Ohio Broadband Availability",
+        #caption="Viz by Tim Gordon | Dataset from DataIsPlural",
+        x = "",
+        y="",
+        fill="Usage")
+  
+library(patchwork)
 ```
-
 
 
 
