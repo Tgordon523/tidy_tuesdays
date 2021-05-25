@@ -51,7 +51,8 @@ survey_fm %>%
 
 
 ```{r}
-survey_fm %>%
+unique_years <- survey_fm %>%
+  mutate(overall_years_of_professional_experience= str_trim(overall_years_of_professional_experience)) %>%
   select(overall_years_of_professional_experience) %>%
   unique()
 
@@ -61,17 +62,19 @@ survey_fm %>%
 #   coord_flip()
 
 survey_fm %>%
+  mutate(overall_years_of_professional_experience= str_trim(overall_years_of_professional_experience)) %>%
   group_by(overall_years_of_professional_experience) %>%
-  summarise(total_comp_avg = mean(total_comp)) %>%
+  summarise(total_comp_median = median(total_comp)) %>%
   # ungroup() %>%
-  arrange(total_comp_avg) %>%
-  # mutate(overall_years_of_professional_experience = fct_reorder(overall_years_of_professional_experience, desc(annual_salary))) %>%
+  arrange(total_comp_median) %>%
+  # mutate(overall_years_of_professional_experience = fct_reorder(overall_years_of_professional_experience, desc(total_comp_avg))) #%>%
   mutate(overall_years_of_professional_experience = fct_rev(factor(overall_years_of_professional_experience, 
                             levels=c("1 year or less", "2 - 4 years", "5-7 years", "8 - 10 years", "11 - 20 years", "21 - 30 years", 
                                      "31 - 40 years", "41 years or more")))) %>%
-  ggplot(aes(total_comp_avg, y=factor(overall_years_of_professional_experience)) +
-  geom_col() +
-  theme_grey() +
+  ggplot(aes(total_comp_median, y=factor(overall_years_of_professional_experience))) +
+  geom_col(width=.05)+
+  geom_point( size=4, color="orange") +
+  theme_minimal() +
   scale_x_continuous(labels = scales::comma)+
   theme(legend.position = "bottom",
         plot.title.position = "plot",
@@ -79,6 +82,7 @@ survey_fm %>%
         plot.margin = unit(c(.2,.10, .2, .10), "cm"), #top, right, bottom, left
         plot.caption = element_text(size=12)) +
   labs(title="Average Comp over years of Experience for Women",
+       subtitle= "Median compensation increased with years of experience",
        caption="Viz by Tim Gordon | Dataset from Ask a Manager",
        x = "",
        y="Overall Experience")
