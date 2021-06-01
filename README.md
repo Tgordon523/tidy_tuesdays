@@ -3,6 +3,12 @@ Weekly R tidyverse exploratory data analysis
 
 This repository will be updated on a weekly basis with new data analysis each week. 
 
+
+
+----------------------------------------------------------------------------------
+## Week 22 - Mario Kart 64 Records [Week 22 Link](https://github.com/Tgordon523/tidy_tuesdays/tree/main/05-25-2021)
+![Notable Plot](https://github.com/Tgordon523/tidy_tuesdays/blob/main/05-25-2021/plots/mario_kart_record_holders.png)
+
 ----------------------------------------------------------------------------------
 ## Week 21 - Ask A Manager [Week 21 Link](https://github.com/Tgordon523/tidy_tuesdays/tree/main/05-18-2021)
 ![Notable Plot](https://github.com/Tgordon523/tidy_tuesdays/blob/main/05-18-2021/plots/manager_compensation_by_expience.png)
