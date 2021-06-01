@@ -18,6 +18,7 @@ library(janitor)
 library(tidytext)
 library(here)
 library(ggthemes)
+library(ggtext)
 ```
 
 ## Load data
@@ -43,49 +44,40 @@ drivers %>%
     nation == "USA" ~ "USA",
     TRUE            ~ "Europe"
   )) %>%
-  ggplot(aes(x=year, y=records, fill=area)) + 
-  geom_col(position="dodge")
-```
+  group_by(area) %>%
+  summarise(winners=sum(records))
 
+summary(drivers$records)
 
-
-```{r}
-unique_years <- survey_fm %>%
-  mutate(overall_years_of_professional_experience= str_trim(overall_years_of_professional_experience)) %>%
-  select(overall_years_of_professional_experience) %>%
-  unique()
-
-# survey_fm %>%
-#   ggplot(aes(highest_level_of_education_completed, fill=factor(overall_years_of_professional_experience))) +
-#   geom_histogram(stat="count") +
-#   coord_flip()
-
-survey_fm %>%
-  mutate(overall_years_of_professional_experience= str_trim(overall_years_of_professional_experience)) %>%
-  group_by(overall_years_of_professional_experience) %>%
-  summarise(total_comp_median = median(total_comp)) %>%
-  # ungroup() %>%
-  arrange(total_comp_median) %>%
-  # mutate(overall_years_of_professional_experience = fct_reorder(overall_years_of_professional_experience, desc(total_comp_avg))) #%>%
-  mutate(overall_years_of_professional_experience = fct_rev(factor(overall_years_of_professional_experience, 
-                            levels=c("1 year or less", "2 - 4 years", "5-7 years", "8 - 10 years", "11 - 20 years", "21 - 30 years", 
-                                     "31 - 40 years", "41 years or more")))) %>%
-  ggplot(aes(total_comp_median, y=factor(overall_years_of_professional_experience))) +
-  geom_col(width=.05, alpha=.8)+
-  geom_point( size=4, color="orange") +
+drivers %>%
+  # filter(position <= 10) %>%
+  filter(!nation %in% c("Australia", "Brazil", "Canada"), !is.na(nation)) %>%
+  mutate(area = case_when(
+    nation == "USA" ~ "USA",
+    TRUE            ~ "Europe"
+  )) %>%
+  ggplot(aes(x=year, y=records, color=area, fill=area)) + 
+  geom_col(alpha=.3, position="dodge") +
+  geom_smooth(stats="glm", se=FALSE) +
+  scale_fill_manual(values= c("#003194", "#B90B2F")) +
+  scale_color_manual(values= c("#003194", "#B90B2F")) +
+  scale_y_log10() +
+  labs(title="Mario Kart Records held by <span style = 'color:#B90B2F;'>USA</span> or <span style = 'color:#003194;'>EU</span> Players",
+     subtitle= "<span style = 'color:#003194;'>EU</span> players consistenly held records throughout the years in Mario Kart N64.",
+     caption="Viz by Tim Gordon | Dataset from Ask a Manager",
+     x = "",
+     y="Records Held") +
   theme_minimal() +
-  scale_x_continuous(labels = scales::comma)+
-  theme(legend.position = "bottom",
+  theme(legend.position = "none",
+        plot.title = element_markdown(),
+        plot.subtitle = element_markdown(),
         plot.title.position = "plot",
         plot.caption.position = "plot",
         plot.margin = unit(c(.2,.10, .2, .10), "cm"), #top, right, bottom, left
-        plot.caption = element_text(size=12)) +
-  labs(title="Average Compensation over years of Experience for Women",
-       subtitle= "Median compensation increased with years of experience",
-       caption="Viz by Tim Gordon | Dataset from Ask a Manager",
-       x = "",
-       y="Overall Experience")
+        plot.caption = element_text(size=12))
 ```
+
+
 
 
 
