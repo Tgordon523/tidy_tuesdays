@@ -3,7 +3,9 @@ Weekly R tidyverse exploratory data analysis
 
 This repository will be updated on a weekly basis with new data analysis each week. 
 
-
+----------------------------------------------------------------------------------
+## Week 23 - Survivor TV Show [Week 23 Link](https://github.com/Tgordon523/tidy_tuesdays/tree/main/06-01-2021)
+![Notable Plot](https://github.com/Tgordon523/tidy_tuesdays/blob/main/06-01-2021/plots/survivor_decline.png)
 
 ----------------------------------------------------------------------------------
 ## Week 22 - Mario Kart 64 Records [Week 22 Link](https://github.com/Tgordon523/tidy_tuesdays/tree/main/05-25-2021)
