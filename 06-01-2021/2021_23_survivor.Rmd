@@ -42,9 +42,9 @@ summary %>%
   mutate_if(is.character, as.numeric) %>%
   arrange(season) %>%
   ggplot(aes(x=season, y=viewers_finale)) +
-  geom_point(aes(size=first)) + 
-  geom_smooth(stats="glm", se=FALSE) + 
-  theme_hc() + 
+  geom_point(aes(size=first), color="#bf2424") + 
+  geom_smooth(color="#0c527f",stats="glm", se=FALSE) + 
+  theme_grey() + 
   scale_y_log10() +
   theme(legend.position = "bottom",
         plot.title.position = "plot",
