@@ -41,56 +41,23 @@ summary %>% mutate_if(is.character, as.numeric)
 summary %>% 
   mutate_if(is.character, as.numeric) %>%
   arrange(season) %>%
-  ggplot(aes(x=season, y=viewers_finale, size=first)) +
-  geom_point() + 
-  geom_smooth(stats="lm", se=FALSE)
-```
-
-
-
-```{r}
-drivers %>%
-  ggplot(aes(x=records, fill=nation)) +
-  geom_histogram(bins=20)
-
-drivers %>%
-  # filter(position <= 10) %>%
-  filter(!nation %in% c("Australia", "Brazil", "Canada"), !is.na(nation)) %>%
-  mutate(area = case_when(
-    nation == "USA" ~ "USA",
-    TRUE            ~ "Europe"
-  )) %>%
-  group_by(area) %>%
-  summarise(winners=sum(records))
-
-summary(drivers$records)
-
-drivers %>%
-  # filter(position <= 10) %>%
-  filter(!nation %in% c("Australia", "Brazil", "Canada"), !is.na(nation)) %>%
-  mutate(area = case_when(
-    nation == "USA" ~ "USA",
-    TRUE            ~ "Europe"
-  )) %>%
-  ggplot(aes(x=year, y=records, color=area, fill=area)) + 
-  geom_col(alpha=.3, position="dodge") +
-  geom_smooth(stats="glm", se=FALSE) +
-  scale_fill_manual(values= c("#003194", "#B90B2F")) +
-  scale_color_manual(values= c("#003194", "#B90B2F")) +
+  ggplot(aes(x=season, y=viewers_finale)) +
+  geom_point(aes(size=first)) + 
+  geom_smooth(stats="glm", se=FALSE) + 
+  theme_hc() + 
   scale_y_log10() +
-  labs(title="Mario Kart Records held by <span style = 'color:#B90B2F;'>USA</span> or <span style = 'color:#003194;'>EU</span> Players",
-     subtitle= "<span style = 'color:#003194;'>EU</span> players consistenly held records throughout the years in Mario Kart N64.",
-     caption="Viz by Tim Gordon | Dataset from Ask a Manager",
-     x = "",
-     y="Records Held") +
-  theme_minimal() +
-  theme(legend.position = "none",
-        plot.title = element_markdown(),
-        plot.subtitle = element_markdown(),
+  theme(legend.position = "bottom",
         plot.title.position = "plot",
         plot.caption.position = "plot",
         plot.margin = unit(c(.2,.10, .2, .10), "cm"), #top, right, bottom, left
-        plot.caption = element_text(size=12))
+        plot.caption = element_text(size=12)) +
+  labs(x=NULL,
+       y=NULL,
+       size="Winner Votes",
+       title="The Decline of Survivor",
+       subtitle="The winner is more likely to sweep the final vote as the show progresses. Viewers decline significantly over the seasons.",
+       caption="Viz by Tim Gordon | Dataset from survivoR package") 
+  
 ```
 
 
