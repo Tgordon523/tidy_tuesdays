@@ -34,7 +34,18 @@ stocked <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/ti
 ```{r}
 fishing %>%
   ggplot(aes(x=year, y=grand_total, color=lake)) +
-  geom_point()
+  geom_point() +
+  theme(legend.position = "bottom",
+        plot.title.position = "plot",
+        plot.caption.position = "plot",
+        plot.margin = unit(c(.2,.10, .2, .10), "cm"), #top, right, bottom, left
+        plot.caption = element_text(size=12)) +
+  labs(x=NULL,
+       y="Total observed fishes",
+       color="Lake",
+       title="Fish totals declining",
+       subtitle="Superior has largest change",
+       caption="Viz by Tim Gordon | Dataset from ") 
 ```
 
 
