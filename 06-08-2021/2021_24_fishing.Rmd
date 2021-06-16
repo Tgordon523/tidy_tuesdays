@@ -33,15 +33,21 @@ stocked <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/ti
 
 ```{r}
 fishing %>%
-  ggplot(aes(x=year, y=grand_total, color=lake)) +
-  geom_point() +
+  group_by(lake, year) %>%
+  filter(year >= 1990, lake=="Huron") %>%
+  mutate(decade = 10 * (year %/% 10)) %>%
+  ggplot(aes(x=lake, y=grand_total, fill=lake)) +
+  geom_boxplot() +
+  facet_grid(cols=vars(decade)) +
+  # geom_point() +
+  # geom_line() +
   theme(legend.position = "bottom",
         plot.title.position = "plot",
         plot.caption.position = "plot",
         plot.margin = unit(c(.2,.10, .2, .10), "cm"), #top, right, bottom, left
         plot.caption = element_text(size=12)) +
   labs(x=NULL,
-       y="Total observed fishes",
+       y="Total observed catches",
        color="Lake",
        title="Fish totals declining",
        subtitle="Superior has largest change",
