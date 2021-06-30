@@ -1,7 +1,11 @@
-# tidy_tuesdays
+# tidy_tuesdays 
 Weekly R tidyverse exploratory data analysis
 
 This repository will be updated on a weekly basis with new data analysis each week. 
+
+----------------------------------------------------------------------------------
+## Week 24 - Lake Commercial Fishing [Week 24 Link](https://github.com/Tgordon523/tidy_tuesdays/tree/main/06-08-2021)
+![Notable Plot](https://github.com/Tgordon523/tidy_tuesdays/blob/main/06-08-2021/plots/huron_impact.png)
 
 ----------------------------------------------------------------------------------
 ## Week 23 - Survivor TV Show [Week 23 Link](https://github.com/Tgordon523/tidy_tuesdays/tree/main/06-01-2021)
