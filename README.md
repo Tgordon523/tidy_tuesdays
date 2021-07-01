@@ -4,7 +4,7 @@ Weekly R tidyverse exploratory data analysis
 This repository will be updated on a weekly basis with new data analysis each week. 
 
 ----------------------------------------------------------------------------------
-## Week 27 - Lake Commercial Fishing [Week 24 Link](https://github.com/Tgordon523/tidy_tuesdays/tree/main/06-29-2021)
+## Week 27 - Lake Commercial Fishing [Week 27 Link](https://github.com/Tgordon523/tidy_tuesdays/tree/main/06-29-2021)
 ![Notable Plot](https://github.com/Tgordon523/tidy_tuesdays/blob/main/06-29-2021/plots/London_rescues.png)
 
 ----------------------------------------------------------------------------------
