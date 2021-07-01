@@ -51,17 +51,17 @@ animal_rescues %>%
   geom_line(size=1.2) +
   # geom_area() +
   hrbrthemes::theme_ipsum() +
-  scale_fill_tableau() +
+  scale_color_tableau() +
   theme(legend.position = "bottom",
         plot.title.position = "plot",
         plot.caption.position = "plot",
-        plot.margin = unit(c(.2,.10, .2, .10), "cm"), #top, right, bottom, left
+        plot.margin = unit(c(1.1,1.1, 1.1, 1.1), "cm"), #top, right, bottom, left
         plot.caption = element_text(size=12)) +
   labs(x=NULL,
        y="Rescues",
        title="Saving the farm",
        subtitle="Dog rescues are trending lower every year",
-       caption="Viz by Tim Gordon | Dataset from Great Lakes Fishery Commission") 
+       caption="Viz by Tim Gordon | Dataset from London.gov") 
 ```
 
 
