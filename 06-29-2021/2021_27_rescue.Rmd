@@ -30,32 +30,41 @@ animal_rescues <- readr::read_csv('https://raw.githubusercontent.com/rfordatasci
 ## Analysis
 
 ```{r}
-animal_rescues
-```
+animal_rescues %>%
+  skimr::skim()
+
+animal_rescues %>%
+  ggplot(aes(x=incident_number, group=animal_group_parent, color=animal_group_parent)) +
+  geom_histogram()
 
 
-
-```{r}
-fishing %>%
-  # group_by(lake, year) %>%
-  filter(year >= 1990, lake=="Huron") %>%
-  mutate(decade = 10 * (year %/% 10)) %>%
-  ggplot(aes(x=lake, y=grand_total, fill=lake)) +
-  geom_boxplot() +
-  facet_grid(cols=vars(decade)) +
-  # geom_point() +
-  # geom_line() +
-  theme(legend.position = "none",
+animal_rescues %>%
+  mutate(animal_group_parent = str_to_title(animal_group_parent)) %>%
+  mutate(animal_grouping = case_when(
+    animal_group_parent == "Unknown - Wild Animal" ~ "Other",
+    str_detect(animal_group_parent, "Animal|animal") ~ "Unknown Domesticated Animal",
+    TRUE ~ animal_group_parent)
+    ) %>%
+  count(animal_grouping, cal_year) %>%
+  filter(n > 10, cal_year < 2021, !animal_grouping %in% c("Deer", "Other", "Squirrel")) %>%
+  ggplot(aes(y=n, color=animal_grouping, x=cal_year, group=animal_grouping)) +
+  geom_line(size=1.2) +
+  # geom_area() +
+  hrbrthemes::theme_ipsum() +
+  scale_fill_tableau() +
+  theme(legend.position = "bottom",
         plot.title.position = "plot",
         plot.caption.position = "plot",
         plot.margin = unit(c(.2,.10, .2, .10), "cm"), #top, right, bottom, left
         plot.caption = element_text(size=12)) +
   labs(x=NULL,
-       y="Total observed catches",
-       title="Lake Huron fish catch decline",
-       subtitle="Huron notcieably decreases over time",
+       y="Rescues",
+       title="Saving the farm",
+       subtitle="Dog rescues are trending lower every year",
        caption="Viz by Tim Gordon | Dataset from Great Lakes Fishery Commission") 
 ```
+
+
 
 
 
