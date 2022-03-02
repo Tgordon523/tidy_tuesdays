@@ -1,0 +1,95 @@
+---
+title: "Tidy Tuesday (05-18-2021) - Manager Ask"
+author: "Tim Gordon"
+date: "May 18, 2021"
+output: github_document
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+knitr::opts_chunk$set(cache=TRUE, warning=FALSE,
+                      message=FALSE, echo = TRUE, dpi=180,
+                      fig.width = 9, fig.height = 6)
+library(tidyverse)
+library(ggplot2)
+library(janitor)
+library(tidytext)
+library(here)
+library(ggthemes)
+```
+
+## Load data
+
+```{r load}
+survey <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-05-18/survey.csv')
+
+```
+
+## Analysis
+
+
+```{r}
+survey %>%
+  skimr::skim()
+
+survey <- survey %>%
+  mutate(other_monetary_comp = replace_na(as.numeric(other_monetary_comp),0)) %>%
+  mutate(total_comp = annual_salary + other_monetary_comp) 
+
+survey_fm <- 
+  survey %>%
+  filter(gender == "Woman") 
+
+summary(survey)
+
+survey_fm %>%
+  skimr::skim()
+
+```
+
+
+```{r}
+unique_years <- survey_fm %>%
+  mutate(overall_years_of_professional_experience= str_trim(overall_years_of_professional_experience)) %>%
+  select(overall_years_of_professional_experience) %>%
+  unique()
+
+# survey_fm %>%
+#   ggplot(aes(highest_level_of_education_completed, fill=factor(overall_years_of_professional_experience))) +
+#   geom_histogram(stat="count") +
+#   coord_flip()
+
+survey_fm %>%
+  mutate(overall_years_of_professional_experience= str_trim(overall_years_of_professional_experience)) %>%
+  group_by(overall_years_of_professional_experience) %>%
+  summarise(total_comp_median = median(total_comp)) %>%
+  # ungroup() %>%
+  arrange(total_comp_median) %>%
+  # mutate(overall_years_of_professional_experience = fct_reorder(overall_years_of_professional_experience, desc(total_comp_avg))) #%>%
+  mutate(overall_years_of_professional_experience = fct_rev(factor(overall_years_of_professional_experience, 
+                            levels=c("1 year or less", "2 - 4 years", "5-7 years", "8 - 10 years", "11 - 20 years", "21 - 30 years", 
+                                     "31 - 40 years", "41 years or more")))) %>%
+  ggplot(aes(total_comp_median, y=factor(overall_years_of_professional_experience))) +
+  geom_col(width=.05, alpha=.8)+
+  geom_point( size=4, color="orange") +
+  theme_minimal() +
+  scale_x_continuous(labels = scales::comma)+
+  theme(legend.position = "bottom",
+        plot.title.position = "plot",
+        plot.caption.position = "plot",
+        plot.margin = unit(c(.2,.10, .2, .10), "cm"), #top, right, bottom, left
+        plot.caption = element_text(size=12)) +
+  labs(title="Average Compensation over years of Experience for Women",
+       subtitle= "Median compensation increased with years of experience",
+       caption="Viz by Tim Gordon | Dataset from Ask a Manager",
+       x = "",
+       y="Overall Experience")
+```
+
+
+
+
+
+

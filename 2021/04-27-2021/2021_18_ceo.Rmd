@@ -1,0 +1,94 @@
+---
+title: "Tidy Tuesday (04-27-2021) - CEO"
+author: "Tim Gordon"
+date: "April 27, 2021"
+output: github_document
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+knitr::opts_chunk$set(cache=TRUE, warning=FALSE,
+                      message=FALSE, echo = TRUE, dpi=180,
+                      fig.width = 9, fig.height = 6)
+library(tidyverse)
+library(ggplot2)
+library(janitor)
+library(tidytext)
+library(here)
+library(ggthemes)
+# library(ggtext)
+```
+
+## Load data
+
+```{r load}
+departures <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-04-27/departures.csv')
+
+```
+
+## Analysis
+
+```{r}
+departures %>% skimr::skim()
+
+departures <- departures %>%
+  mutate(depart_reason = case_when(
+    departure_code == 1 ~ 'CEO Death',
+    departure_code == 2 ~ 'CEO Illness',
+    departure_code == 3 ~ 'CEO Poor Performance',
+    departure_code == 4 ~ 'CEO Legal Trouble',
+    departure_code == 5 ~ 'CEO Retired',
+    departure_code == 6 ~ 'CEO Left for Opp',
+    departure_code == 7 ~ 'Other',
+    departure_code == 8 ~ 'CEO Missing Data',
+    departure_code == 9 ~ 'CEO Turnover Issue',
+    TRUE ~ 'No Departure'
+  )) 
+```
+
+
+```{r}
+
+### Plot key values in CEO departures
+departures %>%
+  filter(fyear > 1990, fyear < 2020, !is.na(fyear), depart_reason != 'No Departure', depart_reason != 'Other', depart_reason != 'CEO Missing Data') %>%
+  mutate(decade = 10 * (fyear %/% 10)) %>%
+  ggplot(aes(x=decade,fill=depart_reason)) +
+  geom_bar() +
+  scale_fill_brewer() +
+  coord_flip() +
+  theme_minimal() +
+  guides(fill = guide_legend(nrow = 1, reverse=TRUE)) +
+  theme(plot.title.position = "plot",
+        legend.position = "top",
+        plot.caption.position = "plot",
+        plot.margin = unit(c(.2,.10, .2, .10), "cm"), #top, right, bottom, left
+        plot.caption = element_text(size=12)) +
+  labs(title="CEO Departures",
+       caption="Viz by Tim Gordon | Dataset from DataIsPlural",
+       x = "",
+       y="") 
+  
+
+departures %>%
+  unnest_tokens(word, notes) %>%
+  anti_join(stop_words) %>%
+  count(word, sort=TRUE) %>%
+  # str_extract_all(word, "[a-zA-z]") #%>%
+  slice_max(n, n=20) %>%
+  mutate(word = fct_reorder(word, n)) %>%
+  ggplot(aes(x= n, y= word)) +
+  geom_col()
+
+
+
+
+
+```
+
+
+
+
+

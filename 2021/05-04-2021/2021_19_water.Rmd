@@ -1,0 +1,130 @@
+---
+title: "Tidy Tuesday (05-04-2021) - Water Access"
+author: "Tim Gordon"
+date: "May 04, 2021"
+output: github_document
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+knitr::opts_chunk$set(cache=TRUE, warning=FALSE,
+                      message=FALSE, echo = TRUE, dpi=180,
+                      fig.width = 9, fig.height = 6)
+library(tidyverse)
+library(ggplot2)
+library(janitor)
+library(tidytext)
+library(here)
+library(ggthemes)
+library(maps)
+# library(ggtext)
+```
+
+## Load data
+
+```{r load}
+water <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-05-04/water.csv')
+
+```
+
+## Analysis
+
+
+```{r}
+water %>% skimr::skim()
+```
+
+
+```{r}
+
+areas <- water %>%
+  filter(!country_name %in% c("Peru","Dominican Republic", "Timor-Leste", "Mali"), !is.na(country_name)) %>%
+  select(country_name, lat_deg, lon_deg) %>%
+  mutate(country = str_extract(country_name, "^[^-]+")) %>% 
+  mutate(country1 = gsub("Congo ", "Democratic Republic of the Congo", country)) %>%
+  select(country1) %>%
+  unique() 
+
+check <- c("Ethiopia",	"Kenya",	"Central African Republic",	"Uganda",	"Niger",	"Mozambique",	"Liberia",	"Swaziland",	"Sierra Leone",	"Zambia",	"Nigeria",	"Ghana",	"Burkina Faso",	"Zimbabwe",	"Madagascar",	"Tanzania",	"South Sudan",	"Rwanda",	"South Africa",	"Burundi",	"Gambia",	"Democratic Republic of the Congo",	"Angola",	"Algeria",	"Namibia",	"Sudan",	"Chad",	"Mauritania",	"Egypt")
+
+# write.table(areas, "clipboard", sep=",")
+africa <- map(database = "world", regions = check)
+
+map <- map(database = "world", filter="Africa")
+```
+
+
+```{r}
+library("rnaturalearth")
+library("rnaturalearthdata")
+library("sf")
+
+world <- ne_countries(scale = "medium", returnclass = "sf")
+
+water %>%
+  filter(status_id != 'u', !is.na(installer)) %>%
+  count(installer, sort=TRUE) %>%
+  ungroup() %>%
+  slice_max(n, n=25)
+
+water_levels <- water %>%
+  filter(status_id != 'u', !is.na(country_name)) %>%
+  group_by(country_name) %>%
+  summarise(n = n()) %>%
+  mutate(freq = n/sum(n)) %>%
+    # count(country_name, sort=TRUE) %>%
+  mutate(country_name = fct_reorder(country_name, n)) %>%
+  rename(name = country_name)
+
+dat_maps %>%
+  filter(region_un=='Africa') %>%
+  ggplot() +
+  geom_sf() +
+  geom_polygon(data=water_levels)
+
+world %>%
+  filter(region_un=='Africa')
+
+dat_map <- inner_join(water_levels, world, by="name")
+
+dat_maps <- st_as_sf(dat_map)
+
+library(tmap)
+library(tmaptools)
+qtm(dat_maps, fill="n", palette="Blues")
+
+tm_shape(dat_maps) +
+  tm_polygons(col = "n",
+              style="quantile",
+              legend.hist=FALSE, 
+              title="Active Water Access Points") +
+  tm_style("watercolor") 
+### Plot key values in CEO departures
+# departures %>%
+#   filter(fyear > 1990, fyear < 2020, !is.na(fyear), depart_reason != 'No Departure', depart_reason != 'Other', depart_reason != 'CEO Missing Data') %>%
+#   mutate(decade = 10 * (fyear %/% 10)) %>%
+#   ggplot(aes(x=decade,fill=depart_reason)) +
+#   geom_bar() +
+#   scale_fill_brewer() +
+#   coord_flip() +
+#   theme_minimal() +
+#   guides(fill = guide_legend(nrow = 1, reverse=TRUE)) +
+#   theme(plot.title.position = "plot",
+#         legend.position = "top",
+#         plot.caption.position = "plot",
+#         plot.margin = unit(c(.2,.10, .2, .10), "cm"), #top, right, bottom, left
+#         plot.caption = element_text(size=12)) +
+#   labs(title="CEO Departures",
+#        caption="Viz by Tim Gordon | Dataset from DataIsPlural",
+#        x = "",
+#        y="") 
+ 
+
+```
+
+
+
+
+

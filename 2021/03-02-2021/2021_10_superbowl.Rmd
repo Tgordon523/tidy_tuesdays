@@ -1,0 +1,88 @@
+---
+title: "Tidy Tuesday (03-02-2021) - Superbowl commercials"
+author: "Tim Gordon"
+date: "March 2, 2021"
+output: github_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+knitr::opts_chunk$set(cache=TRUE, warning=FALSE,
+                      message=FALSE, echo = TRUE, dpi=180,
+                      fig.width = 9, fig.height = 6)
+library(tidyverse)
+library(skimr)
+library(ggplot2)
+library(janitor)
+library(ggpubr)
+library(here)
+library(ggthemes)
+library(tidytext)
+#theme_set(theme_grey())
+```
+
+## Load data for Airline
+
+```{r}
+youtube <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-03-02/youtube.csv')
+
+```
+
+### Exploratory Data Analysis of Flight Data
+
+```{r}
+youtube %>%
+  skim()
+
+youtube %>% 
+  mutate(years = case_when(year <= 2005 ~ "2000s part1",
+                           year < 2010 ~ "2000s part2",
+                           year <= 2015 ~ "2010s part1",
+                           TRUE ~ "2010s part2")) %>%
+  mutate(years = as.factor(years)) %>%
+  mutate(brand = fct_relevel(brand, "Doritos", "NFL", "Coca-Cola", "Bud Light", "Budweiser", "Pepsi", "Toyota", "Hynudai", "E-Trade", "Kia")) %>%
+  ggplot(aes(like_count,brand, fill=years)) +
+  geom_col() +
+  scale_x_continuous(labels = scales::comma) +
+  scale_fill_brewer(palette=1, type="div") +
+  coord_flip() +
+  theme_fivethirtyeight() +
+  labs(x="",
+       y="Likes",
+       title="Superbowl brands with the most likes ")
+
+youtube %>% 
+  mutate(years = case_when(year <= 2005 ~ "2000s part1",
+                           year < 2010 ~ "2000s part2",
+                           year <= 2015 ~ "2010s part1",
+                           TRUE ~ "2010s part2")) %>%
+  mutate(years = as.factor(years)) %>%
+  ggplot(aes(like_count, view_count)) +
+  geom_point(size=4) +
+  geom_smooth(method="lm") +
+  facet_wrap(~years) +
+  theme_hc() +
+  scale_x_continuous(labels = scales::comma) +
+  scale_y_continuous(labels = scales::comma) +
+  labs(x="Likes", 
+       y="Views", 
+       title="Superbowl Commercial Video Performance",
+       subtitle = "Commercials performed increasingly well in the 2010s.")
+
+
+youtube %>%
+  ggplot(aes(view_count, like_count, color=use_sex)) +
+  geom_point(size=5) +
+  theme_hc() +
+  scale_x_continuous(labels = scales::comma) +
+  scale_y_continuous(labels = scales::comma) +
+  labs(x="Views on commercial",
+       y="Likes on commercial",
+       title="Use of sex view and like ratio in commercials",
+       subtitle ="Commercials performed significantly without any sex appeal") +
+  theme(legend.position="none")
+
+```
+

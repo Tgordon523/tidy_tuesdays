@@ -1,0 +1,78 @@
+---
+title: "Tidy Tuesday (06-08-2021) - Great Lakes Fishing"
+author: "Tim Gordon"
+date: "June 8, 2021"
+output: github_document
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+knitr::opts_chunk$set(cache=TRUE, warning=FALSE,
+                      message=FALSE, echo = TRUE, dpi=180,
+                      fig.width = 9, fig.height = 6)
+library(tidyverse)
+library(ggplot2)
+library(tidytext)
+library(here)
+library(ggthemes)
+library(ggtext)
+```
+
+## Load data
+
+```{r load}
+animal_rescues <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-06-29/animal_rescues.csv')
+
+```
+
+## Analysis
+
+```{r}
+animal_rescues %>%
+  skimr::skim()
+
+animal_rescues %>%
+  ggplot(aes(x=incident_number, group=animal_group_parent, color=animal_group_parent)) +
+  geom_histogram()
+
+
+animal_rescues %>%
+  mutate(animal_group_parent = str_to_title(animal_group_parent)) %>%
+  mutate(animal_grouping = case_when(
+    animal_group_parent == "Unknown - Wild Animal" ~ "Other",
+    str_detect(animal_group_parent, "Animal|animal") ~ "Unknown Domesticated Animal",
+    TRUE ~ animal_group_parent)
+    ) %>%
+  count(animal_grouping, cal_year) %>%
+  filter(n > 10, cal_year < 2021, !animal_grouping %in% c("Deer", "Other", "Squirrel")) %>%
+  ggplot(aes(y=n, color=animal_grouping, x=cal_year, group=animal_grouping)) +
+  geom_line(size=1.2) +
+  # geom_area() +
+  hrbrthemes::theme_ipsum() +
+  scale_color_tableau() +
+  theme(legend.position = "bottom",
+        plot.title.position = "plot",
+        plot.caption.position = "plot",
+        plot.margin = unit(c(1.1,1.1, 1.1, 1.1), "cm"), #top, right, bottom, left
+        plot.caption = element_text(size=12)) +
+  labs(x=NULL,
+       y="Rescues",
+       title="Saving the farm",
+       subtitle="Dog rescues are trending lower every year",
+       caption="Viz by Tim Gordon | Dataset from London.gov") 
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
